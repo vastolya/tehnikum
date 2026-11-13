@@ -188,13 +188,13 @@ export default function BistroMap() {
                 onClick={() => openCluster(cluster)}
                 aria-label={location ? location.name.ru : `Приблизить группу: ${cluster.count} локаций`}
                 aria-pressed={active}
-                className={`relative flex shrink-0 cursor-pointer items-center justify-center rounded-full shadow-[0_4px_14px_rgb(44_42_38/0.3)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-red ${city ? "size-20 border border-white bg-brand-grey text-brand-ink hover:bg-white" : "size-14 border-2 border-white bg-brand-red text-white font-brand text-3xl font-light"} ${active ? "ring-2 ring-brand-red ring-offset-2 ring-offset-white" : ""}`}
+                className={`relative flex shrink-0 cursor-pointer items-center justify-center rounded-full shadow-[0_4px_14px_rgb(44_42_38/0.3)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-red ${city ? "size-20 border border-white bg-brand-grey text-brand-ink hover:bg-white" : "size-14 border-2 border-white bg-brand-red font-brand-mono text-lg font-normal text-white"} ${active ? "ring-2 ring-brand-red ring-offset-2 ring-offset-white" : ""}`}
               >
                 {city ? (
                   <>
                     {symbol ? <Image src={`/brand/cities/${symbol}.svg`} alt="" width={56} height={48} className="h-12 w-14 object-contain" /> : <span className="size-5 rounded-full border-2 border-brand-red bg-brand-grey" />}
                   </>
-                ) : <span className="-translate-y-[0.12em] leading-none tabular-nums">{cluster.count}</span>}
+                ) : <span className="leading-none tabular-nums [text-box:trim-both_cap_alphabetic]">{cluster.count}</span>}
               </button>
               </NativeMapMarker>
             );

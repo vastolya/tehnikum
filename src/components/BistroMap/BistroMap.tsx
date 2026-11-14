@@ -10,6 +10,9 @@ import { mapPoints } from "@/data/map-points";
 import { OVERVIEW_BOUNDS, prepareMapStyle, type BrowserMap, type Bounds, type LngLat, type MapLibreSdk, type MapStyle } from "@/lib/maplibre-browser";
 import { clusterPoints, type PointCluster } from "./cluster-points";
 import NativeMapMarker from "./NativeMapMarker";
+import BistroPopup from "./BistroPopup";
+import { locationCameraOffset } from "./popup-position";
+import { CLUSTER_TRANSITION_MS, clusterKey, transitionClusters, type TransitionCluster } from "./cluster-transitions";
 
 type LoadState = "loading" | "ready" | "error";
 
@@ -20,8 +23,17 @@ export default function BistroMap() {
   const [loadState, setLoadState] = useState<LoadState>("loading");
   const [attempt, setAttempt] = useState(0);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
-  const [clusters, setClusters] = useState<(PointCluster & { coordinates: LngLat })[]>([]);
-  const [markerContext, setMarkerContext] = useState<{ map: BrowserMap; sdk: MapLibreSdk } | null>(null);
+  const [clusters, setClusters] = useState<TransitionCluster[]>([]);
+  const clustersRef = useRef<TransitionCluster[]>([]);
+  const [markerContext, setMarkerContext] = useState<{ map: BrowserMap; sdk: MapLibreSdk; viewport: HTMLElement } | null>(null);
+  const selectedBistro = locations.find((location) => location.id === selectedLocation);
+  const selectedPoint = mapPoints.find((point) => point.id === selectedLocation);
+  const popupVisible = loadState === "ready" && selectedBistro && selectedPoint && clusters.some((cluster) => !cluster.exitTo && cluster.ids.length === 1 && cluster.ids[0] === selectedLocation);
+
+  function closeDetails() {
+    setSelectedLocation(null);
+    pendingLocationRef.current = null;
+  }
 
   useEffect(() => {
     const container = containerRef.current;
@@ -31,6 +43,9 @@ export default function BistroMap() {
     let starting = false;
     let retryScript: HTMLScriptElement | undefined;
     let timeout: ReturnType<typeof setTimeout>;
+    let clusterTimeout: ReturnType<typeof setTimeout> | undefined;
+    let topology = "";
+    clustersRef.current = [];
     const motionReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     function updateClusters() {
@@ -39,11 +54,25 @@ export default function BistroMap() {
       const currentZoom = map.getZoom();
       // Include off-screen points so dragging never needs to remount a marker.
       const positions = mapPoints.map((point) => ({ id: point.id, ...map.project(point.coordinates) }));
-      setClusters(clusterPoints(positions, currentZoom).map((cluster) => {
+      const next = clusterPoints(positions, currentZoom).map((cluster) => {
         const point = cluster.ids.length === 1 ? mapPoints.find((item) => item.id === cluster.ids[0]) : undefined;
         const center = map.unproject({ x: cluster.x, y: cluster.y });
         return { ...cluster, coordinates: point?.coordinates ?? [center.lng, center.lat] as LngLat };
-      }));
+      });
+      const nextTopology = next.map(clusterKey).sort().join(";");
+      if (nextTopology === topology) return;
+      topology = nextTopology;
+      clearTimeout(clusterTimeout);
+      const updated = motionReduced ? next : transitionClusters(clustersRef.current, next);
+      clustersRef.current = updated;
+      setClusters(updated);
+      if (updated.some((cluster) => "exitTo" in cluster && cluster.exitTo)) {
+        clusterTimeout = setTimeout(() => {
+          if (disposed) return;
+          clustersRef.current = clustersRef.current.filter((cluster) => !cluster.exitTo);
+          setClusters(clustersRef.current);
+        }, CLUSTER_TRANSITION_MS + 40);
+      }
     }
 
     function showError() {
@@ -78,18 +107,19 @@ export default function BistroMap() {
           pitchWithRotate: false,
         });
         mapRef.current = map;
-        // Native markers follow every map frame themselves. Regroup only once
-        // the camera settles, rather than rerendering the whole UI on `move`.
+        // Check membership during zoom; React updates only when groups change.
+        // MapLibre still owns marker positioning during camera movement.
+        map.on("zoom", updateClusters);
         map.on("moveend", updateClusters);
         map.on("resize", updateClusters);
         map.on("load", () => {
           if (disposed) return;
           clearTimeout(timeout);
-          setMarkerContext({ map, sdk: window.tehnikumMapLibre! });
+          setMarkerContext({ map, sdk: window.tehnikumMapLibre!, viewport: container! });
           setLoadState("ready");
           const pendingPoint = mapPoints.find((point) => point.id === pendingLocationRef.current);
           if (pendingPoint) {
-            map.flyTo({ center: pendingPoint.coordinates, zoom: pendingPoint.precision === "building" ? 15 : 10, duration: motionReduced ? 0 : 700 });
+            map.flyTo({ center: pendingPoint.coordinates, zoom: pendingPoint.precision === "building" ? 15 : 10, duration: motionReduced ? 0 : 700, offset: locationCameraOffset(window.innerWidth, window.innerHeight) });
           } else {
             map.fitBounds(OVERVIEW_BOUNDS, {
               padding: { top: 60, bottom: window.innerWidth < 768 ? 260 : 70, left: window.innerWidth < 768 ? 30 : 430, right: 70 },
@@ -122,6 +152,7 @@ export default function BistroMap() {
       disposed = true;
       controller.abort();
       clearTimeout(timeout);
+      clearTimeout(clusterTimeout);
       observer.disconnect();
       retryScript?.remove();
       window.removeEventListener("tehnikum:map-ready", start);
@@ -140,6 +171,7 @@ export default function BistroMap() {
       center: point.coordinates,
       zoom: point.precision === "building" ? 15 : 10,
       duration: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 900,
+      offset: locationCameraOffset(window.innerWidth, window.innerHeight),
     });
   }
 
@@ -148,6 +180,7 @@ export default function BistroMap() {
       flyToLocation(cluster.ids[0]);
       return;
     }
+    closeDetails();
     const points = mapPoints.filter((point) => cluster.ids.includes(point.id));
     const lngs = points.map((point) => point.coordinates[0]);
     const lats = points.map((point) => point.coordinates[1]);
@@ -160,11 +193,19 @@ export default function BistroMap() {
   }
 
   return (
-    <div className="relative h-svh min-h-[600px] overflow-hidden bg-brand-grey font-brand-mono text-brand-ink">
+    <div className="relative h-svh min-h-[600px] animate-map-enter overflow-hidden bg-brand-grey font-brand-mono text-brand-ink motion-reduce:animate-none">
       <Script src="/scripts/maplibre-loader.js" type="module" strategy="afterInteractive" onError={() => { window.tehnikumMapLibreError = true; setLoadState("error"); }} />
-      <div ref={containerRef} className="absolute! inset-0 h-full w-full font-brand-mono! [&_.maplibregl-canvas]:grayscale [&_.maplibregl-canvas:focus-visible]:outline-2 [&_.maplibregl-canvas:focus-visible]:outline-brand-red" aria-label="Интерактивная карта бистро: перемещение, масштабирование колёсиком и жестами" />
+      <div ref={containerRef} className={`absolute! inset-0 h-full w-full font-brand-mono! transition-opacity duration-700 ease-out motion-reduce:transition-none ${loadState === "ready" ? "opacity-100" : "opacity-0"} [&_.maplibregl-canvas]:grayscale [&_.maplibregl-canvas:focus-visible]:outline-2 [&_.maplibregl-canvas:focus-visible]:outline-brand-red`} aria-label="Интерактивная карта бистро: перемещение, масштабирование колёсиком и жестами" />
 
-      {loadState === "loading" && <p role="status" className="pointer-events-none absolute top-10 right-24 text-xs text-brand-ink/70">Загружаем карту…</p>}
+      <div role="status" className={`pointer-events-none absolute top-8 right-22 z-20 w-28 transition-opacity duration-300 motion-reduce:transition-none md:top-11 md:right-26 ${loadState === "loading" ? "opacity-100" : "opacity-0"}`}>
+        <span className="sr-only">{loadState === "loading" ? "Карта загружается" : loadState === "ready" ? "Карта готова" : "Карта недоступна"}</span>
+        <div aria-hidden="true">
+          <Image src="/brand/tehnikum-logo.svg" alt="" width={112} height={14} className="h-auto w-full" />
+          <div className="mt-3 h-px overflow-hidden bg-brand-ink/10">
+            <span className={`block h-full w-1/3 bg-brand-red motion-reduce:animate-none ${loadState === "loading" ? "animate-map-loading" : ""}`} />
+          </div>
+        </div>
+      </div>
       {loadState === "error" && (
         <div role="alert" className="absolute top-20 right-6 left-6 z-20 max-w-sm rounded-xl bg-white p-6 shadow-xl md:top-8 md:right-24 md:left-auto">
           <p className="font-brand text-2xl font-light">Не удалось загрузить карту</p>
@@ -179,20 +220,25 @@ export default function BistroMap() {
             const point = cluster.ids.length === 1 ? mapPoints.find((item) => item.id === cluster.ids[0]) : undefined;
             const city = point ? mapCities.find((item) => item.locationIds.includes(point.id)) : undefined;
             const location = point ? locations.find((item) => item.id === point.id) : undefined;
-            const symbol = city && "symbol" in city ? city.symbol : undefined;
+            const symbol = point?.id === "moscow-atrium" ? undefined : city?.symbol;
             const active = selectedLocation !== null && cluster.ids.includes(selectedLocation);
             return (
-              <NativeMapMarker key={cluster.ids.join("-")} map={markerContext.map} sdk={markerContext.sdk} coordinates={cluster.coordinates}>
+              <NativeMapMarker key={clusterKey(cluster)} map={markerContext.map} sdk={markerContext.sdk} coordinates={cluster.coordinates} from={cluster.from} exitTo={cluster.exitTo}>
               <button
                 type="button"
-                onClick={() => openCluster(cluster)}
+                onClick={(event) => { event.stopPropagation(); openCluster(cluster); }}
                 aria-label={location ? location.name.ru : `Приблизить группу: ${cluster.count} локаций`}
                 aria-pressed={active}
+                aria-expanded={location ? Boolean(active && popupVisible) : undefined}
+                aria-controls={location && active && popupVisible ? `bistro-details-${location.id}` : undefined}
+                disabled={Boolean(cluster.exitTo)}
+                aria-hidden={cluster.exitTo ? true : undefined}
+                tabIndex={cluster.exitTo ? -1 : undefined}
                 className={`relative flex shrink-0 cursor-pointer items-center justify-center rounded-full shadow-[0_4px_14px_rgb(44_42_38/0.3)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-red ${city ? "size-20 border border-white bg-brand-grey text-brand-ink hover:bg-white" : "size-14 border-2 border-white bg-brand-red font-brand-mono text-lg font-normal text-white"} ${active ? "ring-2 ring-brand-red ring-offset-2 ring-offset-white" : ""}`}
               >
                 {city ? (
                   <>
-                    {symbol ? <Image src={`/brand/cities/${symbol}.svg`} alt="" width={56} height={48} className="h-12 w-14 object-contain" /> : <span className="size-5 rounded-full border-2 border-brand-red bg-brand-grey" />}
+                    {symbol ? <Image src={`/brand/cities/${symbol}.svg`} alt="" width={56} height={48} className="h-12 w-14 object-contain" /> : <Image src="/brand/tehnikum-logo-compact.svg" alt="" width={64} height={64} className="size-16 object-contain" />}
                   </>
                 ) : <span className="leading-none tabular-nums [text-box:trim-both_cap_alphabetic]">{cluster.count}</span>}
               </button>
@@ -202,7 +248,9 @@ export default function BistroMap() {
         </>
       )}
 
-      <aside className="absolute right-4 bottom-10 left-4 z-20 max-h-[40svh] rounded-2xl bg-white shadow-2xl md:top-6 md:right-auto md:bottom-auto md:left-6 md:max-h-[calc(100svh-3rem)] md:w-[360px]" aria-label="Выбор бистро">
+      {popupVisible && markerContext && <BistroPopup key={selectedBistro.id} map={markerContext.map} sdk={markerContext.sdk} viewport={markerContext.viewport} coordinates={selectedPoint.coordinates} location={selectedBistro} onClose={closeDetails} />}
+
+      <aside className={`absolute right-4 bottom-10 left-4 z-20 max-h-[40svh] animate-map-panel-enter rounded-2xl bg-white shadow-2xl motion-reduce:animate-none md:top-6 md:right-auto md:bottom-auto md:left-6 md:max-h-[calc(100svh-3rem)] md:w-[360px] ${popupVisible ? "max-[1100px]:hidden" : ""}`} aria-label="Выбор бистро">
         <div className="flex max-h-[inherit] flex-col overflow-hidden rounded-[inherit]">
           <div className="shrink-0 px-6 pt-6 pb-4 md:px-7 md:pt-8">
             <h1 className="font-brand text-[28px] leading-[1.15] font-light md:whitespace-nowrap">Выбрать бистро</h1>
@@ -218,17 +266,10 @@ export default function BistroMap() {
                     {placeName && <span className="mt-0.5 block text-[13px] leading-5 text-brand-ink/75 group-hover:text-brand-red group-aria-pressed:text-brand-red">{placeName}</span>}
                     {"status" in location && <span className="mt-1 block text-xs leading-5 text-brand-ink/70">{location.status.ru}</span>}
                   </button>
-                  {active && "address" in location && (
-                    <div className="pb-4 text-[13px] leading-5">
-                      <p className="text-brand-ink/75">{location.address.ru}</p>
-                      <a href={`https://yandex.ru/maps/?text=${encodeURIComponent(location.mapQuery)}`} target="_blank" rel="noopener noreferrer" aria-label={`${location.name.ru} — открыть точный адрес в новой вкладке`} className="mt-2 inline-flex min-h-11 items-center text-brand-ink underline underline-offset-4">Открыть адрес ↗</a>
-                    </div>
-                  )}
                 </li>
               );
             })}
           </ul>
-          {selectedLocation && <p aria-live="polite" className="shrink-0 border-t border-brand-ink/10 px-6 py-3 text-[10px] leading-relaxed text-brand-ink/55">{mapPoints.find((point) => point.id === selectedLocation)?.precision === "building" ? "Метка показывает здание по адресу бистро." : "Пока показан город. Точное место появится после подтверждения адреса."}</p>}
         </div>
       </aside>
 

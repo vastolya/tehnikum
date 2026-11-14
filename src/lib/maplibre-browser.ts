@@ -30,7 +30,7 @@ export interface BrowserMap {
   unproject(point: { x: number; y: number }): { lng: number; lat: number };
   getZoom(): number;
   fitBounds(bounds: Bounds, options?: CameraOptions): void;
-  flyTo(options: { center: LngLat; zoom: number; duration?: number }): void;
+  flyTo(options: { center: LngLat; zoom: number; duration?: number; offset?: [number, number] }): void;
   zoomIn(): void;
   zoomOut(): void;
   resize(): void;

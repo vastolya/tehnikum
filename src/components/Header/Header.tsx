@@ -11,7 +11,6 @@ const menuItems = [
   { label: "Галерея", id: "gallery" },
   { label: "События", id: "events" },
   { label: "Франшиза", id: "franchise" },
-  { label: "Партнерам", id: "partners" },
 ];
 
 export default function Header({ activeId, onNavigate }: { activeId?: string; onNavigate?: (id: string) => void }) {
@@ -145,8 +144,8 @@ export default function Header({ activeId, onNavigate }: { activeId?: string; on
         }}
         className="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none overflow-clip border-0 bg-transparent p-0 text-white outline-none backdrop:bg-transparent"
       >
-        <div ref={shadeRef} aria-hidden="true" onClick={closeMenu} className="absolute inset-0 bg-black/60 opacity-0 backdrop-blur-sm" />
-        <div ref={panelRef} className="absolute inset-y-0 right-0 flex h-full w-full max-w-[30rem] flex-col overflow-y-auto rounded-l-2xl bg-brand-ink px-8 py-6 [transform:translateX(100%)] will-change-transform sm:px-14">
+        <div ref={shadeRef} aria-hidden="true" onClick={closeMenu} className="absolute inset-0 z-0 bg-black/60 opacity-0" />
+        <div ref={panelRef} className="absolute inset-y-0 right-0 z-10 flex h-full w-full max-w-[30rem] flex-col overflow-y-auto rounded-l-2xl bg-black px-8 py-6 [transform:translateX(100%)] will-change-transform sm:px-14">
           <button
             type="button"
             aria-label="Закрыть меню"

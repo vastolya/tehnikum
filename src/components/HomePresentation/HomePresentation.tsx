@@ -5,6 +5,10 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import Header from "@/components/Header/Header";
 import Hero from "@/components/Hero/Hero";
 import Gallery from "@/components/Gallery/Gallery";
+import Events from "@/components/Events/Events";
+import Franchise from "@/components/Franchise/Franchise";
+import ClosingSlide from "@/components/ClosingSlide/ClosingSlide";
+import type { BistroEvent } from "@/data/events";
 import ArrowLink from "@/components/ArrowLink/ArrowLink";
 import { revealText } from "@/lib/reveal-text";
 
@@ -12,9 +16,9 @@ const slides = [
   { id: "hero", label: "Главная", background: null, position: "center" },
   { id: "about", label: "О проекте", background: "/images/slides/about.webp", position: "60% center" },
   { id: "gallery", label: "Галерея", background: null, position: "center" },
-  { id: "events", label: "События", background: "/images/slides/events.webp", position: "60% center" },
-  { id: "franchise", label: "Франшиза", background: "/images/slides/franchise.webp", position: "65% center" },
-  { id: "partners", label: "Партнерам", background: "/images/slides/partners.webp", position: "65% center" },
+  { id: "events", label: "События", background: null, position: "center" },
+  { id: "franchise", label: "Франшиза", background: null, position: "65% center" },
+  { id: "footer", label: "Техникум", background: null, position: "center" },
 ];
 const content: Record<string, { title: string; description: string; image: string; paragraphs: string[] }> = {
   about: {
@@ -23,23 +27,11 @@ const content: Record<string, { title: string; description: string; image: strin
     image: "/images/slides/about-details.webp",
     paragraphs: ["Техникум — сеть бистро с интересной гастрономией на каждый день. Понятная еда, необычные сочетания и общение без барьеров.", "Для встреч и спонтанных планов. Для новых вкусов и привычного городского ритма."],
   },
-  events: {
-    title: "Повод увидеться",
-    description: "Встречи, которые хочется запомнить.",
-    image: "/images/slides/about.webp",
-    paragraphs: ["Черновик афиши. Здесь появятся подтверждённые события с датами и указанием бистро."],
-  },
   franchise: {
     title: "Техникум в вашем городе",
-    description: "Начнём с интереса. Продолжим знакомством.",
+    description: "Городское бистро от White Rabbit Family.",
     image: "/images/bistros/rostov.webp",
-    paragraphs: ["Черновик раздела о франшизе. Здесь появятся подтверждённые условия и контакт для обсуждения открытия бистро."],
-  },
-  partners: {
-    title: "Давайте вместе",
-    description: "Хорошие идеи начинаются с разговора.",
-    image: "/images/slides/franchise.webp",
-    paragraphs: ["Черновик раздела для совместных проектов. Добавим способ связи после подтверждения контакта для сотрудничества."],
+    paragraphs: ["Техникум — городское бистро White Rabbit Family. В основе формата — гастрономия на каждый день, авторская кухня и непринуждённая атмосфера.", "Завтраки, основное меню и коктейли создают разные поводы для встречи: от начала дня до вечера с друзьями.", "Хотите открыть Техникум в своём городе? Расскажите о себе и вашем проекте команде франчайзинга White Rabbit Family."],
   },
 };
 
@@ -47,7 +39,8 @@ export default function HomePresentation() {
   const [active, setActive] = useState(0);
   const [detailsIndex, setDetailsIndex] = useState(1);
   const [detailsSequence, setDetailsSequence] = useState(0);
-  const details = content[slides[detailsIndex].id];
+  const [selectedEvent, setSelectedEvent] = useState<BistroEvent | null>(null);
+  const details = selectedEvent ?? content[slides[detailsIndex].id];
   const activeRef = useRef(0);
   const viewportRef = useRef<HTMLElement>(null);
   const detailsDialogRef = useRef<HTMLDialogElement>(null);
@@ -57,6 +50,7 @@ export default function HomePresentation() {
   const lockedUntil = useRef(0);
 
   useLayoutEffect(() => {
+    if (slides[active].id === "events") return;
     const section = viewportRef.current?.querySelector(`#${slides[active].id}`);
     const animations = section ? revealText(section) : [];
     return () => animations.forEach((animation) => animation.cancel());
@@ -69,9 +63,10 @@ export default function HomePresentation() {
     return () => detailsTextAnimationsRef.current.forEach((animation) => animation.cancel());
   }, [detailsSequence]);
 
-  function openDetails() {
+  function openDetails(event?: BistroEvent) {
     const dialog = detailsDialogRef.current;
     if (!dialog || dialog.open) return;
+    setSelectedEvent(event ?? null);
     setDetailsIndex(activeRef.current);
     setDetailsSequence((sequence) => sequence + 1);
     detailsAnimationRef.current?.cancel();
@@ -112,7 +107,7 @@ export default function HomePresentation() {
   }, []);
 
   const navigate = useCallback((id: string) => {
-    const index = slides.findIndex((slide) => slide.id === id);
+    const index = slides.findIndex((slide) => slide.id === (id === "partners" ? "franchise" : id));
     if (index >= 0) selectSlide(index, true);
   }, [selectSlide]);
 
@@ -126,6 +121,7 @@ export default function HomePresentation() {
     let touchStart: { x: number; y: number } | null = null;
     const menuOpen = () => Boolean(document.querySelector("dialog[open]"));
     const syncHash = () => {
+      if (window.location.hash === "#partners") window.history.replaceState(null, "", "#franchise");
       const index = slides.findIndex((slide) => `#${slide.id}` === window.location.hash);
       selectSlide(index < 0 ? 0 : index, false, false);
     };
@@ -190,46 +186,54 @@ export default function HomePresentation() {
   }, [selectSlide]);
 
   return (
-    <div className="fixed inset-0 isolate overflow-clip bg-brand-ink text-white">
+    <div className="fixed inset-0 isolate overflow-clip bg-black text-white">
       <Header activeId={slides[active].id} onNavigate={navigate} />
       <main ref={viewportRef} aria-label="Презентация Техникума" className="absolute inset-0 touch-pinch-zoom overflow-clip">
         {slides.map((slide, index) => (
-          <section key={slide.id} id={slide.id} inert={index !== active} tabIndex={-1} aria-label={slide.label} aria-roledescription="слайд" style={{ opacity: index === active ? 1 : 0, zIndex: index === active ? 1 : 0, pointerEvents: index === active ? "auto" : "none" }} className="absolute inset-0 overflow-clip bg-brand-ink outline-none transition-opacity duration-400 ease-in-out motion-reduce:transition-none">
+          <section key={slide.id} id={slide.id} inert={index !== active} tabIndex={-1} aria-label={slide.label} aria-roledescription="слайд" style={{ opacity: index === active ? 1 : 0, zIndex: index === active ? 1 : 0, pointerEvents: index === active ? "auto" : "none" }} className="absolute inset-0 isolate overflow-clip bg-black outline-none transition-opacity duration-400 ease-in-out motion-reduce:transition-none">
             {slide.background && <>
               <Image src={slide.background} alt="" fill sizes="100vw" style={{ objectPosition: slide.position }} className="object-cover" />
-              <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-linear-to-r from-brand-ink/85 via-brand-ink/45 to-brand-ink/20" />
-              <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-linear-to-b from-brand-ink/70 via-transparent to-brand-ink/45" />
+              <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 bg-linear-to-r from-black/85 via-black/45 to-black/20" />
+              <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 bg-linear-to-b from-black/70 via-transparent to-black/45" />
             </>}
             {slide.id === "hero" ? (
               <Hero />
             ) : slide.id === "gallery" ? (
               <Gallery active={index === active} />
+            ) : slide.id === "events" ? (
+              <Events active={index === active} onDetails={openDetails} />
+            ) : slide.id === "franchise" ? (
+              <Franchise onDetails={() => openDetails()} />
+            ) : slide.id === "footer" ? (
+              <ClosingSlide />
             ) : (
-              <div className="relative flex h-full min-h-0 flex-col px-page-gutter pt-36 pb-24 max-sm:pt-40">
+              <div className="relative z-10 flex h-full min-h-0 flex-col px-page-gutter pt-36 pb-24 max-sm:pt-40">
                   <div className="flex min-h-0 max-w-3xl flex-1 flex-col items-start justify-center">
                     <p data-reveal className="border-b border-brand-red pb-1.5 font-brand-mono text-xs leading-relaxed text-white/80">{slide.label}</p>
                     <h2 data-reveal className="mt-6 text-balance font-brand text-[clamp(1.875rem,min(4vw,6dvh),3.5rem)] leading-[1.2] font-light">{content[slide.id].title}</h2>
                     <p data-reveal className="mt-6 max-w-md font-brand-mono text-sm leading-[1.75] text-white/90 sm:text-base">{content[slide.id].description}</p>
-                    <div data-reveal className="mt-6"><ArrowLink onClick={openDetails}>Подробнее</ArrowLink></div>
+                    <div data-reveal className="mt-6"><ArrowLink onClick={() => openDetails()}>Подробнее</ArrowLink></div>
                   </div>
               </div>
             )}
           </section>
         ))}
       </main>
-      <dialog ref={detailsDialogRef} aria-labelledby="details-title" onCancel={(event) => { event.preventDefault(); closeDetails(); }} className="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none overflow-hidden border-0 bg-brand-ink p-0 text-white backdrop:bg-transparent">
+      <dialog ref={detailsDialogRef} aria-labelledby="details-title" onCancel={(event) => { event.preventDefault(); closeDetails(); }} className="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none overflow-hidden border-0 bg-black p-0 text-white backdrop:bg-transparent">
         <Image src={details.image} alt="" fill sizes="100vw" loading="eager" className="object-cover object-[60%_center]" />
-        <div aria-hidden="true" className="absolute inset-0 bg-brand-ink/80" />
-        <div aria-hidden="true" className="absolute inset-0 bg-linear-to-r from-black/50 to-transparent" />
-        <div className="relative h-full overflow-y-auto overscroll-contain md:mr-24">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 bg-black/80" />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 bg-linear-to-r from-black/50 to-transparent" />
+        <div className="relative z-10 h-full overflow-y-auto overscroll-contain md:mr-24">
           <div className="flex min-h-full flex-col justify-center px-page-gutter py-24 md:px-[12vw] md:py-20">
-            <h2 data-reveal id="details-title" className="self-start border-b border-brand-red pb-2 font-brand text-4xl leading-tight font-light sm:text-5xl md:text-6xl">{slides[detailsIndex].label}</h2>
+            <h2 data-reveal id="details-title" className="self-start border-b border-brand-red pb-2 font-brand text-4xl leading-tight font-light sm:text-5xl md:text-6xl">{selectedEvent?.title ?? slides[detailsIndex].label}</h2>
+            {selectedEvent && <p data-reveal className="mt-6 font-brand-mono text-sm leading-relaxed text-white/70">{selectedEvent.location}<br />Опубликовано <time dateTime={selectedEvent.publishedAt}>{selectedEvent.publishedLabel}</time></p>}
             <div className="mt-8 max-w-4xl space-y-6 font-brand-mono text-base leading-[1.7] sm:mt-12 sm:text-xl md:text-2xl">
               {details.paragraphs.map((paragraph) => <p data-reveal key={paragraph}>{paragraph}</p>)}
             </div>
+            {!selectedEvent && slides[detailsIndex].id === "franchise" && <a data-reveal href="mailto:franchising@wrf.su?subject=Tehnikum" className="mt-8 self-start font-brand-mono text-sm underline decoration-brand-red underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">Обсудить франшизу ↗</a>}
           </div>
         </div>
-        <button type="button" autoFocus onClick={closeDetails} aria-label="Закрыть подробности" className="absolute top-4 right-4 grid size-14 cursor-pointer place-items-center bg-brand-ink text-white transition-colors hover:bg-brand-red focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white motion-reduce:transition-none md:inset-y-0 md:right-0 md:h-full md:w-24">
+        <button type="button" autoFocus onClick={closeDetails} aria-label="Закрыть подробности" className="absolute top-4 right-4 z-20 grid size-14 cursor-pointer place-items-center bg-black text-white transition-colors hover:bg-brand-red focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white motion-reduce:transition-none md:inset-y-0 md:right-0 md:h-full md:w-24">
           <svg aria-hidden="true" width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="m4 4 24 24M28 4 4 28" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
         </button>
       </dialog>

@@ -109,8 +109,8 @@ export default function Gallery({ active }: { active: boolean }) {
           <Image src={photo.src} alt={photo.alt} fill sizes="100vw" loading={active ? "eager" : "lazy"} className="object-cover" draggable={false} />
         </div>
       ))}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-linear-to-b from-black/55 via-transparent to-transparent" />
-      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-[40%] bg-linear-to-t from-black/65 via-black/25 via-35% to-transparent" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 bg-linear-to-b from-black/55 via-transparent to-transparent" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-[40%] bg-linear-to-t from-black/65 via-black/25 via-35% to-transparent" />
       {[-1, 1].map((direction) => (
         <button
           key={direction}
@@ -156,7 +156,7 @@ export default function Gallery({ active }: { active: boolean }) {
       <div
         ref={cursorRef}
         aria-hidden="true"
-        className="pointer-events-none absolute top-0 left-0 z-30 hidden [@media(hover:hover)_and_(pointer:fine)]:block"
+        className="pointer-events-none absolute top-0 left-0 z-10 hidden [@media(hover:hover)_and_(pointer:fine)]:block"
       >
         <div className="-translate-x-1/2 -translate-y-1/2">
           <div className={`grid size-20 place-items-center rounded-full bg-brand-red text-white transition-[scale,opacity] duration-250 ease-out motion-reduce:transition-none lg:size-24 ${active && cursorVisible ? "scale-100 opacity-100" : "scale-0 opacity-0"}`}>

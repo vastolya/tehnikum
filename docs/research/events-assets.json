@@ -1,0 +1,37 @@
+{
+  "checkedAt": "2026-11-15",
+  "sourcePage": "https://tehnikumbistro.ru/rus/atr/events",
+  "scope": "Official Atrium feed; individual posts refer to Moscow bistros. Dates are publication dates. Current availability not independently verified.",
+  "assets": [
+    {
+      "id": "tehnobox-vol-2",
+      "postUrl": "https://tehnikumbistro.ru/tpost/hjf4bl28l1-tehnobox-vol-2",
+      "sourceImage": "https://static.tildacdn.com/tild3339-3237-4330-b930-336634626162/1920x1080_6.png",
+      "publishedAt": "2026-10-13 10:11",
+      "localPath": "public/images/events/tehnobox-vol-2.webp",
+      "width": 1680,
+      "height": 945,
+      "bytes": 172554
+    },
+    {
+      "id": "say-cheese",
+      "postUrl": "https://tehnikumbistro.ru/tpost/kkejb654t1-skazhi-siiir",
+      "sourceImage": "https://static.tildacdn.com/tild6637-3166-4434-a533-613838656163/_04_1.jpg",
+      "publishedAt": "2026-10-12 15:47",
+      "localPath": "public/images/events/say-cheese.webp",
+      "width": 891,
+      "height": 668,
+      "bytes": 143106
+    },
+    {
+      "id": "pumpkin-season",
+      "postUrl": "https://tehnikumbistro.ru/tpost/k1u6n6v9o1-sezon-tikvi-v-tehnikumah",
+      "sourceImage": "https://static.tildacdn.com/tild6236-3539-4666-b835-656436666639/_DSC8360.webp",
+      "publishedAt": "2026-09-30 14:37",
+      "localPath": "public/images/events/pumpkin-season.webp",
+      "width": 1680,
+      "height": 1117,
+      "bytes": 212504
+    }
+  ]
+}

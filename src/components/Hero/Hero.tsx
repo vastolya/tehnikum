@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function Hero() {
   return (
-    <section aria-labelledby="hero-title" className="relative flex h-full min-h-0 flex-col bg-brand-ink">
+    <section aria-labelledby="hero-title" className="relative isolate flex h-full min-h-0 flex-col bg-black">
       <Image
         src="/images/hero-kitchen.webp"
         alt=""
@@ -11,8 +11,8 @@ export default function Hero() {
         sizes="100vw"
         className="object-cover object-center"
       />
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-linear-to-b from-brand-ink/75 via-brand-ink/30 to-brand-ink/85" />
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-linear-to-r from-brand-ink/70 via-brand-ink/20 to-transparent" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 bg-linear-to-b from-black/75 via-black/30 to-black/85" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 bg-linear-to-r from-black/70 via-black/20 to-transparent" />
       <div className="relative z-10 flex min-h-0 w-full flex-1 flex-col px-page-gutter pt-36 pb-24 text-white max-sm:pt-40">
         <div className="flex min-h-0 max-w-3xl flex-1 flex-col items-start justify-center">
           <h1 data-reveal id="hero-title" className="text-balance font-brand text-[clamp(1.875rem,min(4vw,6dvh),3.5rem)] leading-[1.2] font-light">

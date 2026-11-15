@@ -4,13 +4,14 @@ import Image from "next/image";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import Header from "@/components/Header/Header";
 import Hero from "@/components/Hero/Hero";
+import Gallery from "@/components/Gallery/Gallery";
 import ArrowLink from "@/components/ArrowLink/ArrowLink";
 import { revealText } from "@/lib/reveal-text";
 
 const slides = [
   { id: "hero", label: "Главная", background: null, position: "center" },
   { id: "about", label: "О проекте", background: "/images/slides/about.webp", position: "60% center" },
-  { id: "gallery", label: "Галерея", background: "/images/bistros/novosibirsk.webp", position: "center" },
+  { id: "gallery", label: "Галерея", background: null, position: "center" },
   { id: "events", label: "События", background: "/images/slides/events.webp", position: "60% center" },
   { id: "franchise", label: "Франшиза", background: "/images/slides/franchise.webp", position: "65% center" },
   { id: "partners", label: "Партнерам", background: "/images/slides/partners.webp", position: "65% center" },
@@ -21,12 +22,6 @@ const content: Record<string, { title: string; description: string; image: strin
     description: "Новые вкусы. Знакомое чувство — быть собой.",
     image: "/images/slides/about-details.webp",
     paragraphs: ["Техникум — сеть бистро с интересной гастрономией на каждый день. Понятная еда, необычные сочетания и общение без барьеров.", "Для встреч и спонтанных планов. Для новых вкусов и привычного городского ритма."],
-  },
-  gallery: {
-    title: "Место для ваших встреч",
-    description: "Разные города. Свои пространства. Загляните в Техникум.",
-    image: "/images/bistros/tyumen.webp",
-    paragraphs: [],
   },
   events: {
     title: "Повод увидеться",
@@ -47,11 +42,6 @@ const content: Record<string, { title: string; description: string; image: strin
     paragraphs: ["Черновик раздела для совместных проектов. Добавим способ связи после подтверждения контакта для сотрудничества."],
   },
 };
-const photos = [
-  { src: "/images/bistros/novosibirsk.webp", caption: "Новосибирск · Советская", alt: "Интерьер бистро Техникум в Новосибирске" },
-  { src: "/images/bistros/moscow-dmitrovka.webp", caption: "Москва · Большая Дмитровка", alt: "Фасад бистро Техникум на Большой Дмитровке" },
-  { src: "/images/bistros/rostov.webp", caption: "Ростов-на-Дону · Соборный", alt: "Интерьер бистро Техникум в Ростове-на-Дону" },
-];
 
 export default function HomePresentation() {
   const [active, setActive] = useState(0);
@@ -212,6 +202,8 @@ export default function HomePresentation() {
             </>}
             {slide.id === "hero" ? (
               <Hero />
+            ) : slide.id === "gallery" ? (
+              <Gallery active={index === active} />
             ) : (
               <div className="relative flex h-full min-h-0 flex-col px-page-gutter pt-36 pb-24 max-sm:pt-40">
                   <div className="flex min-h-0 max-w-3xl flex-1 flex-col items-start justify-center">
@@ -235,12 +227,6 @@ export default function HomePresentation() {
             <div className="mt-8 max-w-4xl space-y-6 font-brand-mono text-base leading-[1.7] sm:mt-12 sm:text-xl md:text-2xl">
               {details.paragraphs.map((paragraph) => <p data-reveal key={paragraph}>{paragraph}</p>)}
             </div>
-            {slides[detailsIndex].id === "gallery" && <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {photos.map((photo) => <figure data-reveal key={photo.src}>
-                <div className="relative aspect-[8/5]"><Image src={photo.src} alt={photo.alt} fill sizes="(min-width: 1024px) 23vw, (min-width: 640px) 36vw, 90vw" className="object-cover" /></div>
-                <figcaption className="mt-3 font-brand-mono text-xs leading-relaxed text-white/80">{photo.caption}</figcaption>
-              </figure>)}
-            </div>}
           </div>
         </div>
         <button type="button" autoFocus onClick={closeDetails} aria-label="Закрыть подробности" className="absolute top-4 right-4 grid size-14 cursor-pointer place-items-center bg-brand-ink text-white transition-colors hover:bg-brand-red focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white motion-reduce:transition-none md:inset-y-0 md:right-0 md:h-full md:w-24">

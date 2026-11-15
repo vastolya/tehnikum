@@ -1,13 +1,7 @@
-import Header from "@/components/Header/Header";
-import Hero from "@/components/Hero/Hero";
+import HomePresentation from "@/components/HomePresentation/HomePresentation";
 
 export default function Home() {
   return (
-    <>
-      <Header />
-      <main>
-        <Hero />
-      </main>
-    </>
+    <HomePresentation />
   );
 }

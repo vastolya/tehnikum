@@ -3,18 +3,8 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PointerEvent } from "react";
+import { galleryCollections as collections } from "@/data/gallery";
 
-const collections = {
-  menu: [
-    { src: "/images/gallery/menu-1.webp", alt: "Еда и напитки на столе в московском бистро Техникум" },
-    { src: "/images/gallery/menu-2.webp", alt: "Гости за столом с едой в московском бистро Техникум" },
-  ],
-  atmosphere: [
-    { src: "/images/bistros/novosibirsk.webp", alt: "Интерьер бистро Техникум в Новосибирске" },
-    { src: "/images/bistros/moscow-dmitrovka.webp", alt: "Фасад бистро Техникум на Большой Дмитровке" },
-    { src: "/images/bistros/rostov.webp", alt: "Интерьер бистро Техникум в Ростове-на-Дону" },
-  ],
-};
 type Category = keyof typeof collections;
 const photos = Object.entries(collections).flatMap(([category, items]) =>
   items.map((photo, index) => ({ ...photo, category, index })),

@@ -1,0 +1,206 @@
+{
+  "date": "2026-11-15",
+  "transform": "auto-orient; fit inside 2560x1920; no upscale; WebP quality 85; metadata stripped",
+  "files": [
+    {
+      "category": "menu",
+      "source": "C:\\Users\\param\\OneDrive\\Desktop\\New folder\\1 Бургер из мраморной говядины.png",
+      "output": "public/images/gallery/menu-1.webp",
+      "sourceSha256": "1f515b9172690975b4cbc1d6384a41d0943e64034e6b439157033532a1ab49ba",
+      "outputSha256": "004d98331589c9e55cc121d10b224e1ed8661bfffdecee3538ec90096982e6da",
+      "width": 1672,
+      "height": 941,
+      "bytes": 103592
+    },
+    {
+      "category": "menu",
+      "source": "C:\\Users\\param\\OneDrive\\Desktop\\New folder\\1G1A0571.JPG",
+      "output": "public/images/gallery/menu-2.webp",
+      "sourceSha256": "a1644ef710d250111dba114ca25c4e5b7c72ae8e260bd397e21f9a2a0799453e",
+      "outputSha256": "8aedcf9cbc069ad77450b15a0e87222169bf731c440feac94beda48b682f6494",
+      "width": 2560,
+      "height": 1707,
+      "bytes": 430478
+    },
+    {
+      "category": "menu",
+      "source": "C:\\Users\\param\\OneDrive\\Desktop\\New folder\\Котлеты из индейки с маринованными огурцами.jpeg",
+      "output": "public/images/gallery/menu-3.webp",
+      "sourceSha256": "c0f334879f96de2e4eacbb92cb929b0a53b80c709a2e3b332805516ce5145eb7",
+      "outputSha256": "a36db7d6de12a6fd396149a06b5fc6eade48a9eabd55836ce0261ba84e9866f6",
+      "width": 2560,
+      "height": 1707,
+      "bytes": 197360
+    },
+    {
+      "category": "menu",
+      "source": "C:\\Users\\param\\OneDrive\\Desktop\\New folder\\Пицца Пармская ветчина» с артишокам и грибами.jpg",
+      "output": "public/images/gallery/menu-4.webp",
+      "sourceSha256": "a7319f191f16811ece849a7f6f60189f3e4ee8996979437cc8d262e454b86d04",
+      "outputSha256": "a541daa7041313d9c6bad68bf7fb8d5b8e511bce68eeca399aa7652030e6a21e",
+      "width": 2560,
+      "height": 1707,
+      "bytes": 582276
+    },
+    {
+      "category": "menu",
+      "source": "C:\\Users\\param\\OneDrive\\Desktop\\New folder\\спагетти арабьята с креветками.jpg",
+      "output": "public/images/gallery/menu-5.webp",
+      "sourceSha256": "b63237fdfa3245fbd6051a58b903bd54a6892a6e4f22202296837e8b9a83e4a0",
+      "outputSha256": "346d6c9e0dc088d2feefcca1690a0588e6a63134f98e2f08dfd164668ed41697",
+      "width": 2560,
+      "height": 1707,
+      "bytes": 567256
+    },
+    {
+      "category": "menu",
+      "source": "C:\\Users\\param\\OneDrive\\Desktop\\New folder\\IMG_2048_2.jpg",
+      "output": "public/images/gallery/menu-6.webp",
+      "sourceSha256": "489cea21bc8c2d4c3e2add1a9533ea22841e01b53660e76996784c2722f399db",
+      "outputSha256": "8833c3e708c123c4f161e1343ef6add025483c29eebc7a7828c267b32b7feb7b",
+      "width": 2560,
+      "height": 1707,
+      "bytes": 805350
+    },
+    {
+      "category": "menu",
+      "source": "C:\\Users\\param\\OneDrive\\Desktop\\New folder\\IMG_2798.jpg",
+      "output": "public/images/gallery/menu-7.webp",
+      "sourceSha256": "ef19440e5df3d1c77689d62c7a5318f353296f73bdd1750acaa01f6fae8155dc",
+      "outputSha256": "15915aed5f2d1eac1aec6f6d7ca648e89f8261c2cde7b58d28fd543ad2eea106",
+      "width": 2560,
+      "height": 1707,
+      "bytes": 704618
+    },
+    {
+      "category": "menu",
+      "source": "C:\\Users\\param\\OneDrive\\Desktop\\New folder\\IMG_3777.jpg",
+      "output": "public/images/gallery/menu-8.webp",
+      "sourceSha256": "f1d5825a20748950bf1d51e40de17c855f2a8ac876245c0eb715aac010e253e6",
+      "outputSha256": "b14593ce9499839e44538ce563350f4aad6b3c36aaf62530b5d5b228e71ddf3d",
+      "width": 2560,
+      "height": 1707,
+      "bytes": 1171994
+    },
+    {
+      "category": "menu",
+      "source": "C:\\Users\\param\\OneDrive\\Desktop\\New folder\\IMG_5843.jpeg",
+      "output": "public/images/gallery/menu-9.webp",
+      "sourceSha256": "523499886e611c652c1598b3f1bbf0641d5c6d0df967f660925e6e23795eafbd",
+      "outputSha256": "c19b2040de8e8a955d67314f22f9453a2e423d7778ad050cda8047d51f7bcfe8",
+      "width": 2560,
+      "height": 1707,
+      "bytes": 373186
+    },
+    {
+      "category": "menu",
+      "source": "C:\\Users\\param\\OneDrive\\Desktop\\New folder\\IMG_5861.jpeg",
+      "output": "public/images/gallery/menu-10.webp",
+      "sourceSha256": "b93ae566ef29668840107610d6a9327f9dab078bfe0853e79c912c1f46ab299d",
+      "outputSha256": "d3f00770a31aea545db72f1688be012cf09f6c3398aa57e3eb791a1783063337",
+      "width": 2560,
+      "height": 1707,
+      "bytes": 439102
+    },
+    {
+      "category": "menu",
+      "source": "C:\\Users\\param\\OneDrive\\Desktop\\New folder\\IMG_6044.jpg",
+      "output": "public/images/gallery/menu-11.webp",
+      "sourceSha256": "cff12e5bd27a9bf50b198631fe5f667c0b7ae91548db487603f38a99e828d54a",
+      "outputSha256": "b28f470970d97cd914fe02b41c840330d33e8c7bc81adb9d837ffa352e9689c3",
+      "width": 2560,
+      "height": 1707,
+      "bytes": 257498
+    },
+    {
+      "category": "atmosphere",
+      "source": "C:\\Users\\param\\OneDrive\\Desktop\\Вечер\\Вечер\\1.png",
+      "output": "public/images/gallery/atmosphere-1.webp",
+      "sourceSha256": "ba033efddcbf1ce32d0d0aced677e2631c6ef0fa5611eccbb9bbd065c7ef68c3",
+      "outputSha256": "379855028aa2fdf3bffb95843ebf9c6804ccc90eabede29dc2a37939d4799198",
+      "width": 1672,
+      "height": 941,
+      "bytes": 143656
+    },
+    {
+      "category": "atmosphere",
+      "source": "C:\\Users\\param\\OneDrive\\Desktop\\Вечер\\Вечер\\1G1A1793_16x9.png",
+      "output": "public/images/gallery/atmosphere-2.webp",
+      "sourceSha256": "e5db715c59c993c2993425121049f4011ec2432ad9d8777234640955068cf191",
+      "outputSha256": "52e1a3d54b01a9dd99b16652ee25b7f6efc0d573512622a6b9a41e1fe67638a6",
+      "width": 1536,
+      "height": 864,
+      "bytes": 105760
+    },
+    {
+      "category": "atmosphere",
+      "source": "C:\\Users\\param\\OneDrive\\Desktop\\Вечер\\Вечер\\exec-0cca1af8-18f6-4365-8d79-a9fd3dadd4ff.png",
+      "output": "public/images/gallery/atmosphere-3.webp",
+      "sourceSha256": "f4f3a85e03200f011453cc4db6d6ed056b6834e74e9409ec79cc7abf70a8ccfc",
+      "outputSha256": "cd64a364342c641f94b1f3c1ca16db5a14bd2aef251c75ea9139f7ca877f0313",
+      "width": 1535,
+      "height": 1025,
+      "bytes": 99112
+    },
+    {
+      "category": "atmosphere",
+      "source": "C:\\Users\\param\\OneDrive\\Desktop\\Вечер\\Вечер\\exec-0dee6d82-41d8-4ede-b661-042f412b387f.png",
+      "output": "public/images/gallery/atmosphere-4.webp",
+      "sourceSha256": "6081d8d905aa0f92683f655e18fc355c6a738a5f2050e66d898195122dd27400",
+      "outputSha256": "31df53f6c770a3bc0644f816f46840e881743af94fd2143e1ba5f59c56d2e5c7",
+      "width": 1534,
+      "height": 1025,
+      "bytes": 176486
+    },
+    {
+      "category": "atmosphere",
+      "source": "C:\\Users\\param\\OneDrive\\Desktop\\Вечер\\Вечер\\exec-72b796f2-3a92-4085-b98f-c1687e3c6ce6.png",
+      "output": "public/images/gallery/atmosphere-5.webp",
+      "sourceSha256": "87253a3a0e344f2e37bd45ef3de756d6baccbdcf5d9f20f5c6c9db3ab387e94f",
+      "outputSha256": "e5ef27c42b7229ab3e8e8ca5c5538bf7160d3dc699111f4cc795f19bd8b218c9",
+      "width": 1535,
+      "height": 1025,
+      "bytes": 210824
+    },
+    {
+      "category": "atmosphere",
+      "source": "C:\\Users\\param\\OneDrive\\Desktop\\Вечер\\Вечер\\exec-877bb8c5-d428-4aa6-915c-8b101ceeea65.png",
+      "output": "public/images/gallery/atmosphere-6.webp",
+      "sourceSha256": "1e1827b12016f36155282050da70f5af14ac69bd80a62bc43391a379d4e96e2f",
+      "outputSha256": "0269eb044774d5b772f3ddbb76f591828396386df4b4cb99c50c4bef987dd5c2",
+      "width": 1538,
+      "height": 1022,
+      "bytes": 197204
+    },
+    {
+      "category": "atmosphere",
+      "source": "C:\\Users\\param\\OneDrive\\Desktop\\Вечер\\Вечер\\exec-9710d872-a41d-4443-b750-e6a4b6125db4.png",
+      "output": "public/images/gallery/atmosphere-7.webp",
+      "sourceSha256": "c3a1fe82eef2fcfa2d975b5c2f4701a1e7cde4f992d7d3f158294a88d5502595",
+      "outputSha256": "81726192a927763d741ef1fa9be52cccf801e00d819ee43d63420c0a4934a335",
+      "width": 1534,
+      "height": 1025,
+      "bytes": 136374
+    },
+    {
+      "category": "atmosphere",
+      "source": "C:\\Users\\param\\OneDrive\\Desktop\\Вечер\\Вечер\\exec-e93178e7-e0d6-4c04-a365-df03e33d411d.png",
+      "output": "public/images/gallery/atmosphere-8.webp",
+      "sourceSha256": "f3f7700f79f76c3f9a99bce96fea41643e2a7d21173c8488389a8b8a21b2291f",
+      "outputSha256": "6a93145d24b7d635c452688f71dffe9375c9d1470218365dc3c3ff7db5973a33",
+      "width": 1535,
+      "height": 1025,
+      "bytes": 101230
+    },
+    {
+      "category": "atmosphere",
+      "source": "C:\\Users\\param\\OneDrive\\Desktop\\Вечер\\Вечер\\exec-fa0dd2f0-938e-4864-afb8-be2ff052648d.png",
+      "output": "public/images/gallery/atmosphere-9.webp",
+      "sourceSha256": "1a532e023d5b75373193c889903a7840e05198298915f0fc61910cc5ec1e04c8",
+      "outputSha256": "58f7166d3cb648d2b1eeebe3ab443e6409a2431f575038646beb0faee9ab3ece",
+      "width": 1534,
+      "height": 1025,
+      "bytes": 79436
+    }
+  ]
+}

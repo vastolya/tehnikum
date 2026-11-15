@@ -4,7 +4,7 @@ export default function Hero() {
   return (
     <section aria-labelledby="hero-title" className="relative flex h-full min-h-0 flex-col bg-brand-ink">
       <Image
-        src="/images/hero-kitchen.png"
+        src="/images/hero-kitchen.webp"
         alt=""
         fill
         priority

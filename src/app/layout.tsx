@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import type { ReactNode } from "react";
+import CookieNotice from "@/components/CookieNotice/CookieNotice";
 import "./globals.css";
 
 const tehnikum = localFont({
@@ -32,7 +33,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ru" className={`${tehnikum.variable} ${courierNew.variable}`}>
-      <body className="m-0 bg-white font-brand-mono text-brand-ink [font-synthesis:none]">{children}</body>
+      <body className="m-0 bg-white font-brand-mono text-brand-ink [font-synthesis:none]">
+        {children}
+        <CookieNotice />
+      </body>
     </html>
   );
 }

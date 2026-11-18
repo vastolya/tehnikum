@@ -22,7 +22,7 @@ export default function ClosingSlide() {
             </div>
           </details>
         </div>
-        {legalDocuments.slice(0, 3).map((document) => <Link key={document.slug} href={`/legal/${document.slug}`} className="inline-flex min-h-8 items-start py-1 hover:underline hover:underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">{document.title}</Link>)}
+        {legalDocuments.slice(0, 3).map((document) => <Link key={document.slug} href={`/legal/${document.slug}`} className="group inline-flex min-h-8 items-start py-1 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"><span className="bg-linear-to-r from-current to-current bg-size-[0%_1px] bg-left-bottom bg-no-repeat pb-1 transition-[background-size] duration-300 group-hover:bg-size-[100%_1px] group-focus-visible:bg-size-[100%_1px] motion-reduce:transition-none">{document.title}</span></Link>)}
       </div>
     </footer>
   );

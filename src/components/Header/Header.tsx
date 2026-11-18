@@ -4,8 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useLayoutEffect, useRef, useState } from "react";
 
-type Language = "ru" | "en";
-
 const menuItems = [
   { label: "О проекте", id: "about" },
   { label: "Галерея", id: "gallery" },
@@ -14,7 +12,6 @@ const menuItems = [
 ];
 
 export default function Header({ activeId, onNavigate }: { activeId?: string; onNavigate?: (id: string) => void }) {
-  const [language, setLanguage] = useState<Language>("ru");
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDialogElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -98,22 +95,11 @@ export default function Header({ activeId, onNavigate }: { activeId?: string; on
       </Link>
 
       <div className="flex items-center gap-9 max-sm:contents">
-        <button
-          type="button"
-          aria-label={language === "ru" ? "Язык шапки: русский. Switch to English" : "Header language: English. Переключить на русский"}
-          className="inline-flex h-12 w-11 shrink-0 cursor-pointer items-center justify-center border-0 bg-transparent px-1 text-sm leading-none text-white uppercase transition-colors hover:text-white max-sm:ml-auto"
-          onClick={() => setLanguage((current) => current === "ru" ? "en" : "ru")}
-        >
-          <span className="[text-box:trim-both_cap_alphabetic]">{language}</span>
-        </button>
-
         <Link
           href="/map"
-          lang={language}
-          className="inline-grid h-12 shrink-0 items-center justify-items-center font-brand text-2xl leading-none font-light whitespace-nowrap text-white underline-offset-4 hover:underline max-sm:order-1 max-sm:w-full [&_span]:[text-box:trim-both_cap_alphabetic]"
+          className="group inline-flex min-h-12 shrink-0 items-center justify-center font-brand text-lg leading-none font-light whitespace-nowrap text-white max-sm:order-1 max-sm:ml-auto [&_span]:[text-box:trim-both_cap_alphabetic]"
         >
-          <span aria-hidden={language !== "ru"} className={`col-start-1 row-start-1 ${language !== "ru" ? "invisible" : ""}`}>Выбрать бистро</span>
-          <span aria-hidden={language !== "en"} className={`col-start-1 row-start-1 ${language !== "en" ? "invisible" : ""}`}>Choose a bistro</span>
+          <span className="bg-linear-to-r from-current to-current bg-size-[0%_1px] bg-left-bottom bg-no-repeat pb-1 transition-[background-size] duration-300 group-hover:bg-size-[100%_1px] group-focus-visible:bg-size-[100%_1px] motion-reduce:transition-none">Выбрать бистро</span>
         </Link>
         <button
           type="button"
@@ -167,7 +153,7 @@ export default function Header({ activeId, onNavigate }: { activeId?: string; on
                     pendingSectionRef.current = item.id;
                     closeMenu();
                   }}
-                  className="inline-block cursor-pointer py-2 text-white decoration-brand-red decoration-1 underline-offset-8 hover:underline focus-visible:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white aria-[current=location]:underline"
+                  className="inline-block cursor-pointer py-2 text-white bg-linear-to-r from-brand-red to-brand-red bg-size-[0%_1px] bg-left-bottom bg-no-repeat transition-[background-size] duration-300 hover:bg-size-[100%_1px] focus-visible:bg-size-[100%_1px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white aria-[current=location]:bg-size-[100%_1px] motion-reduce:transition-none"
                 >
                   {item.label}
                 </a>

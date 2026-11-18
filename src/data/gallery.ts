@@ -3,7 +3,8 @@ export const galleryCollections = {
   "menu": [
     {
       "src": "/images/gallery/menu-1.webp",
-      "alt": "Блюда Техникума — кадр 1"
+      "alt": "Бургер из мраморной говядины",
+      "caption": "Бургер из мраморной говядины"
     },
     {
       "src": "/images/gallery/menu-2.webp",
@@ -11,15 +12,18 @@ export const galleryCollections = {
     },
     {
       "src": "/images/gallery/menu-3.webp",
-      "alt": "Блюда Техникума — кадр 3"
+      "alt": "Котлеты из индейки с маринованными огурцами",
+      "caption": "Котлеты из индейки с маринованными огурцами"
     },
     {
       "src": "/images/gallery/menu-4.webp",
-      "alt": "Блюда Техникума — кадр 4"
+      "alt": "Пицца с пармской ветчиной, артишоками и грибами",
+      "caption": "Пицца с пармской ветчиной, артишоками и грибами"
     },
     {
       "src": "/images/gallery/menu-5.webp",
-      "alt": "Блюда Техникума — кадр 5"
+      "alt": "Спагетти арабьята с креветками",
+      "caption": "Спагетти арабьята с креветками"
     },
     {
       "src": "/images/gallery/menu-6.webp",

@@ -107,6 +107,7 @@ export default function BistroPopup({ map, sdk, viewport, coordinates, location,
               <dd className="mt-0.5 whitespace-pre-line">{"openingHours" in location ? location.openingHours.ru : "—"}</dd>
             </div>
           </dl>
+          <p className="mt-4 text-xs leading-5 text-brand-ink/70">Меню уточняйте в выбранном бистро.</p>
           {"address" in location && (
             <a href={"mapUrl" in location ? location.mapUrl : `https://yandex.ru/maps/?text=${encodeURIComponent(location.mapQuery)}`} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex min-h-11 items-center text-[13px] text-brand-red underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-red" aria-label={`${location.name.ru} — открыть адрес в новой вкладке`}>Открыть адрес ↗</a>
           )}

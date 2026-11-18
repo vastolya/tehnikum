@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PointerEvent } from "react";
 import { galleryCollections as collections } from "@/data/gallery";
@@ -68,7 +69,7 @@ export default function Gallery({ active }: { active: boolean }) {
         if (cursorRef.current) cursorRef.current.style.transform = `translate3d(${x}px, ${y}px, 0)`;
       });
     }
-    const overSwitch = event.target instanceof Element && Boolean(event.target.closest("[role=switch]"));
+    const overSwitch = event.target instanceof Element && Boolean(event.target.closest("[role=switch], a"));
     if (!overSwitch) setPrevious(event.clientX - bounds.left < bounds.width / 2);
     setCursorVisible(!overSwitch);
   }
@@ -120,12 +121,18 @@ export default function Gallery({ active }: { active: boolean }) {
             if (performance.now() >= suppressClickUntil.current) select(direction);
           }}
           className={`absolute inset-y-0 w-1/2 cursor-pointer outline-none focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white [@media(hover:hover)_and_(pointer:fine)]:cursor-none ${direction === -1 ? "left-0" : "right-0"}`}
-        />
+        >
+          <span aria-hidden="true" className={`absolute top-1/2 grid size-12 -translate-y-1/2 place-items-center rounded-full border border-white bg-black/40 text-white sm:size-14 ${direction === -1 ? "left-4 sm:left-page-gutter" : "right-4 sm:right-page-gutter"}`}><Chevron previous={direction === -1} /></span>
+        </button>
       ))}
+      <div className="pointer-events-none absolute bottom-[max(9rem,calc(env(safe-area-inset-bottom)+7rem))] left-page-gutter z-10 max-w-[min(80%,32rem)] text-white sm:bottom-28">
+        <p className="font-brand-mono text-sm leading-snug sm:text-base">{"caption" in collections[category][index] ? (collections[category][index] as { caption: string }).caption : category === "menu" ? "Название блюда уточняется" : "Бистро Техникум · локация уточняется"}</p>
+        <p aria-hidden="true" className="mt-2 font-brand-mono text-xs tabular-nums">{index + 1} / {collections[category].length}</p>
+      </div>
       <button
         type="button"
         role="switch"
-        aria-label="Категория галереи: атмосфера. Выключено — меню"
+        aria-label="Категория галереи: атмосфера. Выключено — кухня и бар"
         aria-checked={category === "atmosphere"}
         onPointerEnter={(event) => {
           if (event.pointerType !== "mouse" || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
@@ -144,14 +151,17 @@ export default function Gallery({ active }: { active: boolean }) {
         }}
         className="group absolute right-page-gutter bottom-[max(2rem,env(safe-area-inset-bottom))] z-20 flex min-h-11 cursor-pointer items-center gap-4 rounded-full font-brand text-xl leading-none font-light text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:bottom-10 sm:gap-5 sm:text-2xl"
       >
-        <span className={`transition-opacity duration-200 motion-reduce:transition-none ${category === "menu" ? "opacity-100" : "[@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100 [@media(hover:hover)_and_(pointer:fine)]:group-focus-visible:opacity-100"}`}>Меню</span>
+        <span className={`transition-opacity duration-200 motion-reduce:transition-none ${category === "menu" ? "opacity-100" : "[@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100 [@media(hover:hover)_and_(pointer:fine)]:group-focus-visible:opacity-100"}`}>Кухня и бар</span>
         <span aria-hidden="true" className="relative h-9 w-16 rounded-full border border-white/80">
           <span className={`absolute top-1 left-1 size-6.5 rounded-full bg-brand-red transition-transform duration-300 ease-in-out motion-reduce:transition-none ${category === "atmosphere" ? "translate-x-7" : "translate-x-0"}`} />
         </span>
         <span className={`transition-opacity duration-200 motion-reduce:transition-none ${category === "atmosphere" ? "opacity-100" : "[@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100 [@media(hover:hover)_and_(pointer:fine)]:group-focus-visible:opacity-100"}`}>Атмосфера</span>
       </button>
+      <Link href="/map" className="absolute bottom-[max(5.5rem,calc(env(safe-area-inset-bottom)+3.5rem))] left-page-gutter z-20 inline-flex min-h-11 items-center font-brand text-xl leading-none font-light text-white underline decoration-brand-red underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:bottom-10 sm:text-2xl">
+        Посмотреть меню ↗
+      </Link>
       <p className="sr-only" aria-live={active ? "polite" : "off"} aria-atomic="true">
-        {category === "menu" ? "Меню" : "Атмосфера"}: фото {index + 1} из {collections[category].length}
+        {category === "menu" ? "Кухня и бар" : "Атмосфера"}: фото {index + 1} из {collections[category].length}
       </p>
       <div
         ref={cursorRef}

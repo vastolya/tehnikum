@@ -22,10 +22,10 @@ const slides = [
 ];
 const content: Record<string, { title: string; description: string; image: string; paragraphs: string[] }> = {
   about: {
-    title: "Городское бистро Техникум на каждый день",
-    description: "Новые вкусы. Знакомое чувство — быть собой.",
+    title: "Городское бистро с честной гастрономией",
+    description: "За кофе по пути, на быстрый обед или на вечер с друзьями. В «Техникуме» ты среди своих.",
     image: "/images/slides/about-details.webp",
-    paragraphs: ["Техникум — сеть бистро с интересной гастрономией на каждый день. Понятная еда, необычные сочетания и общение без барьеров.", "Для встреч и спонтанных планов. Для новых вкусов и привычного городского ритма."],
+    paragraphs: ["«Техникум» — городское гастробистро White Rabbit Family. Завтраки, кофе, нескучная еда, десерты и коктейли — на каждый день и для разных планов. Здесь ценят твоё время, любят хорошую еду и встречают по-дружески."],
   },
   franchise: {
     title: "Техникум в вашем городе",
@@ -230,6 +230,10 @@ export default function HomePresentation() {
             <div className="mt-8 max-w-4xl space-y-6 font-brand-mono text-base leading-[1.7] sm:mt-12 sm:text-xl md:text-2xl">
               {details.paragraphs.map((paragraph) => <p data-reveal key={paragraph}>{paragraph}</p>)}
             </div>
+            {!selectedEvent && slides[detailsIndex].id === "about" && <div className="mt-10 grid max-w-4xl grid-cols-2 gap-2 sm:gap-4">
+              <Image src="/images/gallery/atmosphere-1.webp" alt="Гости за столом в бистро" width={1200} height={800} className="aspect-[4/3] h-full w-full object-cover" />
+              <Image src="/images/gallery/atmosphere-9.webp" alt="Команда за работой на кухне" width={1200} height={800} className="aspect-[4/3] h-full w-full object-cover" />
+            </div>}
             {!selectedEvent && slides[detailsIndex].id === "franchise" && <a data-reveal href="mailto:franchising@wrf.su?subject=Tehnikum" className="mt-8 self-start font-brand-mono text-sm underline decoration-brand-red underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">Обсудить франшизу ↗</a>}
           </div>
         </div>

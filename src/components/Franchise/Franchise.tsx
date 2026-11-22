@@ -1,7 +1,7 @@
 import Image from "next/image";
 import ArrowLink from "@/components/ArrowLink/ArrowLink";
 
-export default function Franchise({ onDetails }: { onDetails: () => void }) {
+export default function Franchise({ onDetails, onContact }: { onDetails: () => void; onContact: () => void }) {
   return (
     <div className="relative isolate flex h-full flex-col bg-black">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 md:right-[35%]">
@@ -12,15 +12,12 @@ export default function Franchise({ onDetails }: { onDetails: () => void }) {
         <div className="max-w-xl">
           <p data-reveal className="w-fit border-b border-brand-red pb-1.5 font-brand-mono text-xs leading-relaxed text-white/80">Франшиза · White Rabbit Family</p>
           <h2 data-reveal className="mt-6 text-balance font-brand text-[clamp(1.875rem,min(4vw,6dvh),3.5rem)] leading-[1.2] font-light">Техникум<br />в вашем городе</h2>
-          <p data-reveal className="mt-6 max-w-md font-brand-mono text-sm leading-[1.75] text-white/90 sm:text-base">Городское бистро от White Rabbit Family. Интересная гастрономия на каждый день, авторская кухня и живая атмосфера.</p>
-          <div data-reveal className="mt-8 flex flex-wrap gap-x-5 gap-y-2 border-y border-white/20 py-4 font-brand-mono text-xs leading-relaxed text-white/80">
-            <span>Завтраки</span><span>Кухня</span><span>Коктейли</span>
-          </div>
+          <p data-reveal className="mt-6 max-w-md font-brand-mono text-sm leading-[1.75] text-white/90 sm:text-base">Откройте «Техникум» в своём городе. Городское гастробистро White Rabbit Family: завтраки, кофе, нескучная еда, десерты и коктейли на каждый день.</p>
           <div data-reveal className="mt-8 flex flex-wrap items-center gap-x-7 gap-y-3">
-            <a href="mailto:franchising@wrf.su?subject=Tehnikum" className="inline-flex min-h-12 items-center justify-center gap-4 bg-brand-red px-6 py-3 font-brand text-xl leading-none font-light text-white transition-colors hover:bg-brand-red/85 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white motion-reduce:transition-none">
+            <button type="button" onClick={onContact} className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-4 bg-brand-red px-6 py-3 font-brand text-xl leading-none font-light text-white transition-colors hover:bg-brand-red/85 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white motion-reduce:transition-none">
               <span className="[text-box:trim-both_cap_alphabetic]">Обсудить франшизу</span>
               <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0"><path d="M3 13 13 3M3 3h10v10" stroke="currentColor" strokeWidth="1.2" /></svg>
-            </a>
+            </button>
             <ArrowLink onClick={onDetails}>О формате</ArrowLink>
           </div>
         </div>

@@ -2,6 +2,16 @@
 
 @source "../";
 
+/* Прокрутка остаётся доступной без видимых полос. */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
 @theme {
   --spacing-page-gutter: max(1rem, 5.2vw);
   --color-brand-red: #ce3a2b;

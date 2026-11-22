@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { PointerEvent } from "react";
 import { galleryCollections as collections } from "@/data/gallery";
 
@@ -25,11 +25,38 @@ export default function Gallery({ active }: { active: boolean }) {
   const [cursorVisible, setCursorVisible] = useState(false);
   const [previous, setPrevious] = useState(false);
   const cursorRef = useRef<HTMLDivElement>(null);
+  const cursorFrameRef = useRef<number | null>(null);
+  const cursorPositionRef = useRef({ x: 0, y: 0 });
   const galleryRef = useRef<HTMLDivElement>(null);
   const touchRef = useRef<{ x: number; y: number } | null>(null);
   const suppressClickUntil = useRef(0);
-  const cursorFrameRef = useRef<number | null>(null);
-  const cursorPositionRef = useRef({ x: 0, y: 0 });
+  const previousSelectionRef = useRef(selection);
+  const directionRef = useRef(1);
+  const animationsRef = useRef<Animation[]>([]);
+
+  useLayoutEffect(() => {
+    const prior = previousSelectionRef.current;
+    previousSelectionRef.current = selection;
+    if (prior.category === category && prior.index === index) return;
+    animationsRef.current.forEach((animation) => animation.cancel());
+    animationsRef.current = [];
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const frames = galleryRef.current?.querySelectorAll<HTMLElement>("[data-gallery-photo]");
+    const outgoing = Array.from(frames ?? []).find((frame) => frame.dataset.galleryPhoto === `${prior.category}-${prior.index}`);
+    const incoming = Array.from(frames ?? []).find((frame) => frame.dataset.galleryPhoto === `${category}-${index}`);
+    const direction = directionRef.current;
+    const options: KeyframeAnimationOptions = { duration: 750, easing: "cubic-bezier(0.22, 1, 0.36, 1)" };
+    if (outgoing) animationsRef.current.push(outgoing.animate([
+      { opacity: 1, transform: "translateX(0) scale(1)", filter: "brightness(1)" },
+      { opacity: 0, transform: `translateX(${-direction * 8}%) scale(1.06)`, filter: "brightness(.7)" },
+    ], options));
+    if (incoming) animationsRef.current.push(incoming.animate([
+      { opacity: 0, transform: `translateX(${direction * 12}%) scale(1.08)`, filter: "brightness(.7)" },
+      { opacity: 1, transform: "translateX(0) scale(1)", filter: "brightness(1)" },
+    ], options));
+  }, [selection, category, index]);
+
+  useEffect(() => () => animationsRef.current.forEach((animation) => animation.cancel()), []);
 
   useEffect(() => () => {
     if (cursorFrameRef.current !== null) cancelAnimationFrame(cursorFrameRef.current);
@@ -37,6 +64,7 @@ export default function Gallery({ active }: { active: boolean }) {
   }, [active]);
 
   const select = useCallback((direction: number) => {
+    directionRef.current = direction;
     setSelection((current) => ({
       ...current,
       index: (current.index + direction + collections[current.category].length) % collections[current.category].length,
@@ -58,6 +86,12 @@ export default function Gallery({ active }: { active: boolean }) {
     return () => section.removeEventListener("keydown", keydown);
   }, [active, select]);
 
+  useEffect(() => {
+    if (!active) return;
+    const timer = window.setTimeout(() => select(1), 3000);
+    return () => window.clearTimeout(timer);
+  }, [active, selection, select]);
+
   function moveCursor(event: PointerEvent<HTMLDivElement>) {
     if (event.pointerType !== "mouse" || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
     const bounds = event.currentTarget.getBoundingClientRect();
@@ -69,9 +103,9 @@ export default function Gallery({ active }: { active: boolean }) {
         if (cursorRef.current) cursorRef.current.style.transform = `translate3d(${x}px, ${y}px, 0)`;
       });
     }
-    const overSwitch = event.target instanceof Element && Boolean(event.target.closest("[role=switch], a"));
-    if (!overSwitch) setPrevious(event.clientX - bounds.left < bounds.width / 2);
-    setCursorVisible(!overSwitch);
+    const overControl = event.target instanceof Element && Boolean(event.target.closest("[role=switch], a"));
+    if (!overControl) setPrevious(event.clientX - bounds.left < bounds.width / 2);
+    setCursorVisible(!overControl);
   }
 
   return (
@@ -80,8 +114,13 @@ export default function Gallery({ active }: { active: boolean }) {
       role="region"
       aria-label="Фотографии бистро"
       aria-roledescription="карусель"
-      className="absolute inset-0 isolate overflow-hidden"
+      className="absolute inset-0 isolate overflow-hidden [@media(hover:hover)_and_(pointer:fine)]:cursor-none"
       onPointerMove={moveCursor}
+      onClick={(event) => {
+        if (performance.now() < suppressClickUntil.current || (event.target instanceof Element && event.target.closest("[role=switch], a"))) return;
+        const bounds = event.currentTarget.getBoundingClientRect();
+        select(event.clientX - bounds.left < bounds.width / 2 ? -1 : 1);
+      }}
       onPointerDown={(event) => {
         touchRef.current = event.pointerType === "touch" ? { x: event.clientX, y: event.clientY } : null;
       }}
@@ -97,55 +136,34 @@ export default function Gallery({ active }: { active: boolean }) {
         }
       }}
       onPointerCancel={() => { touchRef.current = null; }}
-      onPointerLeave={() => {
-        setCursorVisible(false);
-      }}
+      onPointerLeave={() => setCursorVisible(false)}
     >
       {photos.map((photo) => (
         <div
           key={photo.src}
+          data-gallery-photo={`${photo.category}-${photo.index}`}
           aria-hidden={photo.category !== category || photo.index !== index}
-          className={`pointer-events-none absolute inset-0 transition-opacity duration-500 ease-in-out motion-reduce:transition-none ${photo.category === category && photo.index === index ? "opacity-100" : "opacity-0"}`}
+          className={`pointer-events-none absolute inset-0 ${photo.category === category && photo.index === index ? "opacity-100" : "opacity-0"}`}
         >
           <Image src={photo.src} alt={photo.alt} fill sizes="100vw" loading={active ? "eager" : "lazy"} className="object-cover" draggable={false} />
         </div>
       ))}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 bg-linear-to-b from-black/55 via-transparent to-transparent" />
       <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-[40%] bg-linear-to-t from-black/65 via-black/25 via-35% to-transparent" />
-      {[-1, 1].map((direction) => (
-        <button
-          key={direction}
-          type="button"
-          aria-label={direction === -1 ? "Предыдущее фото" : "Следующее фото"}
-          onClick={() => {
-            if (performance.now() >= suppressClickUntil.current) select(direction);
-          }}
-          className={`absolute inset-y-0 w-1/2 cursor-pointer outline-none focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white [@media(hover:hover)_and_(pointer:fine)]:cursor-none ${direction === -1 ? "left-0" : "right-0"}`}
-        >
-          <span aria-hidden="true" className={`absolute top-1/2 grid size-12 -translate-y-1/2 place-items-center rounded-full border border-white bg-black/40 text-white sm:size-14 ${direction === -1 ? "left-4 sm:left-page-gutter" : "right-4 sm:right-page-gutter"}`}><Chevron previous={direction === -1} /></span>
-        </button>
-      ))}
-      <div className="pointer-events-none absolute bottom-[max(9rem,calc(env(safe-area-inset-bottom)+7rem))] left-page-gutter z-10 max-w-[min(80%,32rem)] text-white sm:bottom-28">
-        <p className="font-brand-mono text-sm leading-snug sm:text-base">{"caption" in collections[category][index] ? (collections[category][index] as { caption: string }).caption : category === "menu" ? "Название блюда уточняется" : "Бистро Техникум · локация уточняется"}</p>
-        <p aria-hidden="true" className="mt-2 font-brand-mono text-xs tabular-nums">{index + 1} / {collections[category].length}</p>
-      </div>
       <button
         type="button"
         role="switch"
         aria-label="Категория галереи: атмосфера. Выключено — кухня и бар"
         aria-checked={category === "atmosphere"}
-        onPointerEnter={(event) => {
-          if (event.pointerType !== "mouse" || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-          setCursorVisible(false);
-        }}
         onClick={() => {
+          directionRef.current = category === "menu" ? 1 : -1;
           setSelection({ category: category === "menu" ? "atmosphere" : "menu", index: 0 });
-          setCursorVisible(false);
         }}
         onKeyDown={(event) => {
           if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
             event.preventDefault();
             event.stopPropagation();
+            directionRef.current = event.key === "ArrowLeft" ? -1 : 1;
             setSelection({ category: event.key === "ArrowLeft" ? "menu" : "atmosphere", index: 0 });
           }
         }}
@@ -160,14 +178,7 @@ export default function Gallery({ active }: { active: boolean }) {
       <Link href="/map" className="absolute bottom-[max(5.5rem,calc(env(safe-area-inset-bottom)+3.5rem))] left-page-gutter z-20 inline-flex min-h-11 items-center font-brand text-xl leading-none font-light text-white underline decoration-brand-red underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:bottom-10 sm:text-2xl">
         Посмотреть меню ↗
       </Link>
-      <p className="sr-only" aria-live={active ? "polite" : "off"} aria-atomic="true">
-        {category === "menu" ? "Кухня и бар" : "Атмосфера"}: фото {index + 1} из {collections[category].length}
-      </p>
-      <div
-        ref={cursorRef}
-        aria-hidden="true"
-        className="pointer-events-none absolute top-0 left-0 z-10 hidden [@media(hover:hover)_and_(pointer:fine)]:block"
-      >
+      <div ref={cursorRef} aria-hidden="true" className="pointer-events-none absolute top-0 left-0 z-10 hidden [@media(hover:hover)_and_(pointer:fine)]:block">
         <div className="-translate-x-1/2 -translate-y-1/2">
           <div className={`grid size-20 place-items-center rounded-full bg-brand-red text-white transition-[scale,opacity] duration-250 ease-out motion-reduce:transition-none lg:size-24 ${active && cursorVisible ? "scale-100 opacity-100" : "scale-0 opacity-0"}`}>
             <Chevron previous={previous} />

@@ -1,0 +1,58 @@
+[
+  {
+    "source": "атмосфера-вечер-новосибирск.jpg",
+    "target": "/images/gallery/atmosphere-sequence-1.webp",
+    "width": 2560,
+    "height": 1707,
+    "bytes": 513304,
+    "sourceSha256": "b9cd218cf989ae7bcf857f3adc476d9fc48b58c39cda9e3d6cedad35d972573e"
+  },
+  {
+    "source": "атмосфера-вечер-москва.jpg",
+    "target": "/images/gallery/atmosphere-sequence-2.webp",
+    "width": 2560,
+    "height": 1533,
+    "bytes": 507098,
+    "sourceSha256": "17700699b611ec27a5ef170eda3eae6bd0045431375190a32a684d6290f7afa4"
+  },
+  {
+    "source": "атмосфера-день-москва.png",
+    "target": "/images/gallery/atmosphere-sequence-3.webp",
+    "width": 1537,
+    "height": 1023,
+    "bytes": 164356,
+    "sourceSha256": "12b974842cfeb910ccf50578a504d81e27e90c413fb55fd4fee439a69158133f"
+  },
+  {
+    "source": "атмосфера-день-новосибирск-2.jpg",
+    "target": "/images/gallery/atmosphere-sequence-4.webp",
+    "width": 2560,
+    "height": 1707,
+    "bytes": 535502,
+    "sourceSha256": "6802fec8be0ec1ad8ec1cb62fe6be1b824e0aa93772d9622d4e437e68545ef65"
+  },
+  {
+    "source": "атмосфера-тюмень-тюмень.png",
+    "target": "/images/gallery/atmosphere-sequence-5.webp",
+    "width": 1672,
+    "height": 941,
+    "bytes": 221100,
+    "sourceSha256": "e6321f40bc28071313b92b3319f4e4822a0a21ceccff251181287a0073bc2afc"
+  },
+  {
+    "source": "атмосфера-день-новосибирск.jpg",
+    "target": "/images/gallery/atmosphere-sequence-6.webp",
+    "width": 1280,
+    "height": 853,
+    "bytes": 112500,
+    "sourceSha256": "68f5a5e78c4aebad2e8d6ee2e76ffbf5295d4b406acecb7c9944188e810dd1e3"
+  },
+  {
+    "source": "атмосферв-день-ростов-на-дону.jpg",
+    "target": "/images/gallery/atmosphere-sequence-7.webp",
+    "width": 2560,
+    "height": 1707,
+    "bytes": 388420,
+    "sourceSha256": "6efb8c944bc51afacfbac61e47e3c69e598a6ba5aa10146446eb1338c100c514"
+  }
+]

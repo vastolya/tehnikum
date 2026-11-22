@@ -3,13 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useLayoutEffect, useRef, useState } from "react";
-
-const menuItems = [
-  { label: "О проекте", id: "about" },
-  { label: "Галерея", id: "gallery" },
-  { label: "События", id: "events" },
-  { label: "Франшиза", id: "franchise" },
-];
+import { navigationItems } from "@/data/navigation";
 
 export default function Header({ activeId, onNavigate }: { activeId?: string; onNavigate?: (id: string) => void }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -142,7 +136,7 @@ export default function Header({ activeId, onNavigate }: { activeId?: string; on
             <span aria-hidden="true" className="absolute h-0.5 w-10 -rotate-45 rounded-full bg-white" />
           </button>
           <ul className="mt-14 flex flex-col gap-4 pb-10 font-brand text-[1.75rem] leading-[1.2] font-light sm:text-[2rem]">
-            {menuItems.map((item) => (
+            {navigationItems.map((item) => (
               <li key={item.id}>
                 <a
                   href={`/#${item.id}`}
@@ -159,6 +153,14 @@ export default function Header({ activeId, onNavigate }: { activeId?: string; on
                 </a>
               </li>
             ))}
+            <li>
+              <a
+                href="https://app.wrf.su/"
+                className="inline-block cursor-pointer py-2 text-white bg-linear-to-r from-brand-red to-brand-red bg-size-[0%_1px] bg-left-bottom bg-no-repeat transition-[background-size] duration-300 hover:bg-size-[100%_1px] focus-visible:bg-size-[100%_1px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white motion-reduce:transition-none"
+              >
+                Мобильное приложение
+              </a>
+            </li>
           </ul>
         </div>
       </dialog>

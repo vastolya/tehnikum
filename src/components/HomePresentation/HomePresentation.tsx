@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import Header from "@/components/Header/Header";
 import Hero from "@/components/Hero/Hero";
@@ -18,6 +19,7 @@ const slides = [
   { id: "gallery", label: "Галерея", background: null, position: "center" },
   { id: "events", label: "События", background: null, position: "center" },
   { id: "franchise", label: "Франшиза", background: null, position: "65% center" },
+  { id: "partners", label: "Партнёры", background: "/images/gallery/atmosphere-9.webp", position: "center" },
   { id: "footer", label: "Техникум", background: null, position: "center" },
 ];
 const content: Record<string, { title: string; description: string; image: string; paragraphs: string[] }> = {
@@ -31,7 +33,7 @@ const content: Record<string, { title: string; description: string; image: strin
     title: "Техникум в вашем городе",
     description: "Городское бистро от White Rabbit Family.",
     image: "/images/bistros/rostov.webp",
-    paragraphs: ["Техникум — городское бистро White Rabbit Family. В основе формата — гастрономия на каждый день, авторская кухня и непринуждённая атмосфера.", "Завтраки, основное меню и коктейли создают разные поводы для встречи: от начала дня до вечера с друзьями.", "Хотите открыть Техникум в своём городе? Расскажите о себе и вашем проекте команде франчайзинга White Rabbit Family."],
+    paragraphs: ["«Техникум» — городское гастробистро White Rabbit Family с авторской кухней, открытой кухней и коктейлями на каждый день. Совместный проект Бориса Зарькова и Владимира Мухина."],
   },
 };
 
@@ -40,10 +42,14 @@ export default function HomePresentation() {
   const [detailsIndex, setDetailsIndex] = useState(1);
   const [detailsSequence, setDetailsSequence] = useState(0);
   const [selectedEvent, setSelectedEvent] = useState<BistroEvent | null>(null);
+  const [contactKind, setContactKind] = useState<"franchise" | "partners">("franchise");
   const details = selectedEvent ?? content[slides[detailsIndex].id];
   const activeRef = useRef(0);
   const viewportRef = useRef<HTMLElement>(null);
   const detailsDialogRef = useRef<HTMLDialogElement>(null);
+  const contactDialogRef = useRef<HTMLDialogElement>(null);
+  const contactAnimationRef = useRef<Animation | null>(null);
+  const contactClosingRef = useRef(false);
   const detailsAnimationRef = useRef<Animation | null>(null);
   const detailsClosingRef = useRef(false);
   const detailsTextAnimationsRef = useRef<Animation[]>([]);
@@ -93,7 +99,32 @@ export default function HomePresentation() {
     }).catch(() => {});
   }
 
-  useEffect(() => () => { detailsAnimationRef.current?.cancel(); }, []);
+  function openContact(kind: "franchise" | "partners" = "franchise") {
+    const dialog = contactDialogRef.current;
+    if (!dialog || dialog.open) return;
+    setContactKind(kind);
+    dialog.showModal();
+    const duration = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 400;
+    contactAnimationRef.current = dialog.animate([{ opacity: 0 }, { opacity: 1 }], { duration, easing: "ease-out" });
+  }
+
+  function closeContact() {
+    const dialog = contactDialogRef.current;
+    if (!dialog?.open || contactClosingRef.current) return;
+    contactClosingRef.current = true;
+    const opacity = getComputedStyle(dialog).opacity;
+    contactAnimationRef.current?.cancel();
+    const duration = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 650;
+    const animation = dialog.animate([{ opacity }, { opacity: 0 }], { duration, easing: "ease-in-out", fill: "forwards" });
+    contactAnimationRef.current = animation;
+    animation.finished.then(() => {
+      dialog.close();
+      animation.cancel();
+      contactClosingRef.current = false;
+    }).catch(() => {});
+  }
+
+  useEffect(() => () => { detailsAnimationRef.current?.cancel(); contactAnimationRef.current?.cancel(); }, []);
 
   const selectSlide = useCallback((index: number, focus = false, updateHistory = true) => {
     const next = Math.max(0, Math.min(slides.length - 1, index));
@@ -107,7 +138,7 @@ export default function HomePresentation() {
   }, []);
 
   const navigate = useCallback((id: string) => {
-    const index = slides.findIndex((slide) => slide.id === (id === "partners" ? "franchise" : id));
+    const index = slides.findIndex((slide) => slide.id === id);
     if (index >= 0) selectSlide(index, true);
   }, [selectSlide]);
 
@@ -121,7 +152,6 @@ export default function HomePresentation() {
     let touchStart: { x: number; y: number } | null = null;
     const menuOpen = () => Boolean(document.querySelector("dialog[open]"));
     const syncHash = () => {
-      if (window.location.hash === "#partners") window.history.replaceState(null, "", "#franchise");
       const index = slides.findIndex((slide) => `#${slide.id}` === window.location.hash);
       selectSlide(index < 0 ? 0 : index, false, false);
     };
@@ -188,7 +218,7 @@ export default function HomePresentation() {
   return (
     <div className="fixed inset-0 isolate overflow-clip bg-black text-white">
       <Header activeId={slides[active].id} onNavigate={navigate} />
-      <main ref={viewportRef} aria-label="Презентация Техникума" className="absolute inset-0 touch-pinch-zoom overflow-clip">
+      <main ref={viewportRef} aria-label="Презентация Техникума" className="absolute inset-0 touch-pan-y touch-pinch-zoom overflow-clip">
         {slides.map((slide, index) => (
           <section key={slide.id} id={slide.id} inert={index !== active} tabIndex={-1} aria-label={slide.label} aria-roledescription="слайд" style={{ opacity: index === active ? 1 : 0, zIndex: index === active ? 1 : 0, pointerEvents: index === active ? "auto" : "none" }} className="absolute inset-0 isolate overflow-clip bg-black outline-none transition-opacity duration-400 ease-in-out motion-reduce:transition-none">
             {slide.background && <>
@@ -203,9 +233,11 @@ export default function HomePresentation() {
             ) : slide.id === "events" ? (
               <Events active={index === active} onDetails={openDetails} />
             ) : slide.id === "franchise" ? (
-              <Franchise onDetails={() => openDetails()} />
+              <Franchise onDetails={() => openDetails()} onContact={() => openContact()} />
+            ) : slide.id === "partners" ? (
+              <div className="relative z-10 flex h-full flex-col justify-center px-page-gutter pt-36 pb-24 max-sm:pt-40"><div className="max-w-xl"><p data-reveal className="w-fit border-b border-brand-red pb-1.5 font-brand-mono text-xs leading-relaxed text-white/80">Партнёры</p><h2 data-reveal className="mt-7 text-balance font-brand text-[clamp(1.875rem,min(4vw,6dvh),3.5rem)] leading-[1.2] font-light">Идеи для совместных проектов</h2><p data-reveal className="mt-6 max-w-md font-brand-mono text-sm leading-[1.75] text-white/90 sm:text-base">Расскажите нам о вашей идее и возможностях сотрудничества.</p><div data-reveal className="mt-8"><ArrowLink onClick={() => openContact("partners")}>Заполнить форму</ArrowLink></div></div></div>
             ) : slide.id === "footer" ? (
-              <ClosingSlide />
+              <ClosingSlide onNavigate={navigate} />
             ) : (
               <div className="relative z-10 flex h-full min-h-0 flex-col px-page-gutter pt-36 pb-24 max-sm:pt-40">
                   <div className="flex min-h-0 max-w-3xl flex-1 flex-col items-start justify-center">
@@ -220,26 +252,69 @@ export default function HomePresentation() {
         ))}
       </main>
       <dialog ref={detailsDialogRef} aria-labelledby="details-title" onCancel={(event) => { event.preventDefault(); closeDetails(); }} className="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none overflow-hidden border-0 bg-black p-0 text-white backdrop:bg-transparent">
-        <Image src={details.image} alt="" fill sizes="100vw" loading="eager" className="object-cover object-[60%_center]" />
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 bg-black/80" />
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 bg-linear-to-r from-black/50 to-transparent" />
+        {(selectedEvent || slides[detailsIndex].id !== "franchise") && <><Image src={details.image} alt="" fill sizes="100vw" loading="eager" className="object-cover object-[60%_center]" /><div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 bg-black/80" /><div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 bg-linear-to-r from-black/50 to-transparent" /></>}
         <div className="relative z-10 h-full overflow-y-auto overscroll-contain md:mr-24">
-          <div className="flex min-h-full flex-col justify-center px-page-gutter py-24 md:px-[12vw] md:py-20">
-            <h2 data-reveal id="details-title" className="self-start border-b border-brand-red pb-2 font-brand text-4xl leading-tight font-light sm:text-5xl md:text-6xl">{selectedEvent?.title ?? slides[detailsIndex].label}</h2>
+          <div className="mx-auto flex min-h-full max-w-[90rem] flex-col justify-center px-page-gutter py-24 md:px-[8vw] md:py-20">
+            {!selectedEvent && slides[detailsIndex].id === "franchise" ? <h2 data-reveal id="details-title" className="self-start"><Image src="/brand/tehnikum-logo.svg" alt="Техникум" width={1843} height={227} className="h-auto w-64 max-w-full sm:w-96" /></h2> : <h2 data-reveal id="details-title" className="self-start border-b border-brand-red pb-2 font-brand text-4xl leading-tight font-light sm:text-5xl md:text-6xl">{selectedEvent?.title ?? slides[detailsIndex].label}</h2>}
             {selectedEvent && <p data-reveal className="mt-6 font-brand-mono text-sm leading-relaxed text-white/70">{selectedEvent.location}<br />Опубликовано <time dateTime={selectedEvent.publishedAt}>{selectedEvent.publishedLabel}</time></p>}
             <div className="mt-8 max-w-4xl space-y-6 font-brand-mono text-base leading-[1.7] sm:mt-12 sm:text-xl md:text-2xl">
               {details.paragraphs.map((paragraph) => <p data-reveal key={paragraph}>{paragraph}</p>)}
             </div>
+            {!selectedEvent && slides[detailsIndex].id === "franchise" && <div className="mt-12 w-full space-y-16 font-brand-mono text-sm leading-relaxed sm:text-base">
+              <Image src="/images/franchise-source/bistro.jpg" alt="Интерьер бистро с росписью на стене" width={1680} height={1120} className="aspect-[16/7] w-full rounded-lg object-cover" />
+              <section>
+                <h3 className="font-brand text-3xl font-light">Условия франшизы</h3>
+                <dl className="mt-6 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {[["Паушальный взнос", "25 млн ₽"], ["Роялти", "6%"], ["Инвестиции", "от 150 млн ₽"], ["Выручка в год", "от 220 млн ₽"], ["Окупаемость", "от 36 месяцев"], ["Срок открытия", "7–10 месяцев"]].map(([label, value]) => <div key={label} className="border-t border-white/30 pt-3"><dt className="text-white/70">{label}</dt><dd className="mt-2 text-xl">{value}</dd></div>)}
+                </dl>
+                <p className="mt-6 text-white/70">Сумма инвестиций может изменяться в зависимости от конфигурации и площади бистро. Уточняйте актуальные условия у команды франчайзинга.</p>
+              </section>
+              <section>
+                <h3 className="font-brand text-3xl font-light">10 преимуществ франчайзинга WRF</h3>
+                <ol className="mt-6 grid list-decimal gap-x-10 gap-y-4 pl-5 sm:grid-cols-2"><li>Сильный бренд</li><li>Эффективная бизнес-модель с высокой доходностью</li><li>Помощь в открытии бистро и обучении команды</li><li>Единые стандарты процессов и меню</li><li>Централизованные поставщики</li><li>Общая маркетинговая стратегия</li><li>Инновационные технологии</li><li>Поддержка 24/7</li><li>Интеграция в бизнес-стратегию компании</li><li>Возможность развивать другие бренды WRF</li></ol>
+              </section>
+              <section>
+                <h3 className="font-brand text-3xl font-light">Ключевые характеристики</h3>
+                <dl className="mt-6 grid gap-x-8 gap-y-5 sm:grid-cols-2">{[["Тип заведения", "Гастробистро"], ["Часы работы", "Завтрак, обед, ужин"], ["Ценовой сегмент", "Средний"], ["Обслуживание", "À la carte"], ["Кухня", "Современная гастрономия с азиатскими акцентами и комфортной едой на каждый день"], ["Атмосфера", "Комфортная и демократичная, для повседневных визитов и вечернего отдыха"], ["Поводы для визита", "Завтрак, бизнес-ланч, деловая или семейная встреча, встреча с друзьями, свидание, новый кулинарный опыт в одиночестве и ужин до или после культурных событий"]].map(([label, value]) => <div key={label} className="border-t border-white/30 pt-3"><dt className="text-white/70">{label}</dt><dd className="mt-2">{value}</dd></div>)}</dl>
+              </section>
+              <section>
+                <h3 className="font-brand text-3xl font-light">Преимущества Техникума</h3>
+                <ul className="mt-6 space-y-4"><li><strong>Стандарты White Rabbit Family.</strong> Единые требования к качеству, сервису и операционному управлению.</li><li><strong>Сервис уровня Michelin.</strong> Внимание к гостям и высокий уровень обслуживания.</li><li><strong>Локации с высоким пешеходным трафиком.</strong> Центральные и востребованные районы города.</li><li><strong>Средний чек и маржинальность.</strong> Ориентиры: 1 800 ₽ и 35–42% соответственно.</li><li><strong>Быстрая подача.</strong> Большинство позиций готовятся не более 20 минут.</li><li><strong>Гастрономия на каждый день.</strong> Понятное меню и частые повторные визиты.</li><li><strong>Авторские коктейли и бар.</strong> Собственные заготовки, сезонные обновления и высокая доля барной выручки.</li><li><strong>Городская атмосфера.</strong> Пространство для деловых встреч, обедов и вечернего отдыха.</li></ul>
+              </section>
+              <section className="border-t border-white/25 pt-10">
+                <h3 className="font-brand text-3xl font-light">Ядро целевой аудитории</h3>
+                <div className="mt-8 grid gap-10 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] md:items-start md:gap-16">
+                  <div><p className="text-lg text-brand-red">Ключевая аудитория формата</p><div className="mt-8 border-l border-brand-red pl-6"><p className="font-brand text-4xl font-light">18–40 лет</p><p className="mt-6">Активные люди, которые стремятся к балансу работы и отдыха, следят за здоровьем, ценят качество и разумные цены, любят пробовать новое без крайностей.</p></div></div>
+                  <div className="relative ml-4 mb-4 before:absolute before:inset-0 before:translate-x-[-1rem] before:translate-y-4 before:rounded-lg before:border before:border-white/25"><Image src="/images/franchise-source/audience.png" alt="" width={1344} height={896} className="relative aspect-square w-full rounded-lg object-cover" /></div>
+                </div>
+              </section>
+            </div>}
             {!selectedEvent && slides[detailsIndex].id === "about" && <div className="mt-10 grid max-w-4xl grid-cols-2 gap-2 sm:gap-4">
               <Image src="/images/gallery/atmosphere-1.webp" alt="Гости за столом в бистро" width={1200} height={800} className="aspect-[4/3] h-full w-full object-cover" />
               <Image src="/images/gallery/atmosphere-9.webp" alt="Команда за работой на кухне" width={1200} height={800} className="aspect-[4/3] h-full w-full object-cover" />
             </div>}
-            {!selectedEvent && slides[detailsIndex].id === "franchise" && <a data-reveal href="mailto:franchising@wrf.su?subject=Tehnikum" className="mt-8 self-start font-brand-mono text-sm underline decoration-brand-red underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">Обсудить франшизу ↗</a>}
+            {!selectedEvent && slides[detailsIndex].id === "franchise" && <button type="button" data-reveal onClick={() => openContact()} className="mt-8 cursor-pointer self-start font-brand-mono text-sm underline decoration-brand-red underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">Обсудить франшизу ↗</button>}
           </div>
         </div>
         <button type="button" autoFocus onClick={closeDetails} aria-label="Закрыть подробности" className="absolute top-4 right-4 z-20 grid size-14 cursor-pointer place-items-center bg-black text-white transition-colors hover:bg-brand-red focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white motion-reduce:transition-none md:inset-y-0 md:right-0 md:h-full md:w-24">
           <svg aria-hidden="true" width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="m4 4 24 24M28 4 4 28" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
         </button>
+      </dialog>
+      <dialog ref={contactDialogRef} aria-labelledby="contact-title" onCancel={(event) => { event.preventDefault(); closeContact(); }} className="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none overflow-hidden border-0 bg-black p-0 text-white backdrop:bg-transparent">
+        <Image src={contactKind === "partners" ? "/images/gallery/atmosphere-9.webp" : "/images/slides/franchise.webp"} alt="" fill sizes="100vw" className="object-cover" />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-black/85" />
+        <div className="relative h-full overflow-y-auto overscroll-contain md:mr-24">
+          <div className="mx-auto grid min-h-full max-w-7xl content-center gap-12 px-page-gutter py-24 md:grid-cols-[minmax(0,4fr)_minmax(0,7fr)] md:items-center md:gap-16 lg:gap-24">
+            <div className="max-w-md"><h2 id="contact-title" className="text-balance font-brand text-[clamp(2rem,2.8vw,3rem)] leading-[1.2] font-light">{contactKind === "partners" ? "Давайте сотрудничать" : "Откройте Техникум в вашем городе"}</h2>{contactKind === "partners" && <p className="mt-6 max-w-xs font-brand-mono text-sm leading-[1.75] text-white/80">Расскажите о себе и вашей идее в форме.</p>}</div>
+            <form className="grid gap-x-8 gap-y-8 font-brand-mono text-base leading-relaxed sm:grid-cols-2 sm:gap-y-10" onSubmit={(event) => event.preventDefault()}>
+              {[["name", "Имя и фамилия", "text"], ...(contactKind === "franchise" ? [["city", "Планируемый город открытия", "text"]] : [["company", "Компания", "text"]]), ["phone", "Телефон", "tel"], ["email", "Электронная почта", "email"]].map(([name, label, type]) => <input key={name} required name={name} type={type} aria-label={label} placeholder={label} autoComplete={name === "name" ? "name" : name === "phone" ? "tel" : name === "email" ? "email" : name === "company" ? "organization" : "address-level2"} className="min-h-14 w-full border-b border-white/60 bg-transparent py-3 outline-none placeholder:text-white placeholder-shown:caret-transparent focus:border-brand-red focus:placeholder:text-white/50 autofill:bg-clip-text autofill:[-webkit-text-fill-color:white]" />)}
+              <textarea name="message" aria-label="Текст сообщения" placeholder="Текст сообщения" rows={3} className="w-full resize-y border-b border-white/60 bg-transparent py-3 outline-none placeholder:text-white placeholder-shown:caret-transparent focus:border-brand-red focus:placeholder:text-white/50 sm:col-span-2" />
+              <button type="submit" disabled className="min-h-14 cursor-not-allowed bg-brand-red/50 px-6 font-brand text-xl text-white/70 sm:col-span-2">{contactKind === "partners" ? "Отправить" : "Обсудить франшизу"}</button>
+              <p className="-mt-5 font-brand-mono text-xs leading-relaxed text-white/50 sm:col-span-2 sm:-mt-7">Нажимая «{contactKind === "partners" ? "Отправить" : "Обсудить франшизу"}», я даю согласие на обработку <Link href="/legal/personal-data-policy" className="underline underline-offset-2 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">персональных данных</Link></p>
+            </form>
+          </div>
+        </div>
+        <button type="button" onClick={closeContact} aria-label="Закрыть форму" className="absolute top-4 right-4 grid size-14 cursor-pointer place-items-center bg-black text-white hover:bg-brand-red focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white md:inset-y-0 md:right-0 md:h-full md:w-24"><svg aria-hidden="true" width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="m4 4 24 24M28 4 4 28" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg></button>
       </dialog>
     </div>
   );

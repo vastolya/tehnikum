@@ -5,6 +5,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 import ArrowLink from "@/components/ArrowLink/ArrowLink";
 import { events, type BistroEvent } from "@/data/events";
 import { revealText } from "@/lib/reveal-text";
+import HeroShade from "@/components/Hero/HeroShade";
 
 export default function Events({ active, onDetails }: { active: boolean; onDetails: (event: BistroEvent) => void }) {
   const [index, setIndex] = useState(0);
@@ -37,13 +38,14 @@ export default function Events({ active, onDetails }: { active: boolean; onDetai
       const dy = start.y - e.changedTouches[0].clientY;
       if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) select(dx > 0 ? 1 : -1);
     }}>
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 md:right-[38%] md:[mask-image:linear-gradient(to_right,black_0%,rgb(0_0_0/0.9)_50%,transparent_98%)]">
-        {events.map((item, i) => <Image key={item.id} src={item.image} alt="" fill sizes="(min-width: 768px) 62vw, 100vw" className={`object-cover transition-opacity duration-500 motion-reduce:transition-none ${i === index ? "opacity-100" : "opacity-0"}`} />)}
-        <div className="pointer-events-none absolute inset-0 z-0 bg-black/25" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 md:left-[40%] md:[mask-image:linear-gradient(to_right,transparent_0%,black_25%)]">
+        {events.map((item, i) => <Image key={item.id} src={item.image} alt="" fill sizes="(min-width: 768px) 50vw, 100vw" className={`object-cover transition-opacity duration-500 motion-reduce:transition-none ${i === index ? "opacity-100" : "opacity-0"}`} />)}
+        <div className="absolute inset-x-0 top-0 hidden h-[30%] bg-linear-to-b from-black/75 to-transparent md:block" />
+        <div className="absolute inset-x-0 bottom-0 hidden h-[30%] bg-linear-to-t from-black/75 to-transparent md:block" />
       </div>
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 bg-linear-to-b from-black/70 via-black/35 to-black md:from-black/50 md:via-transparent md:to-black/20" />
-      <div className="relative z-10 flex h-full flex-col px-page-gutter pt-36 pb-[max(2rem,env(safe-area-inset-bottom))] md:pl-[51.4%] md:pb-[12dvh]">
-        <div ref={textRef} className="flex min-h-0 flex-1 flex-col items-start justify-center max-md:justify-end max-md:pb-8">
+      <div className="absolute inset-0 md:hidden"><HeroShade /></div>
+      <div className="relative z-10 flex h-full flex-col px-page-gutter pt-36 pb-[max(2rem,env(safe-area-inset-bottom))] md:pb-[12dvh]">
+        <div ref={textRef} className="flex min-h-0 flex-1 flex-col items-start justify-center max-md:justify-end max-md:pb-8 md:max-w-[45%]">
           <p data-reveal className="border-b border-brand-red pb-1.5 font-brand-mono text-xs leading-relaxed text-white/80">События</p>
           <p data-reveal className="mt-4 font-brand-mono text-xs leading-relaxed text-white/70">{event.location}<br />Опубликовано <time dateTime={event.publishedAt}>{event.publishedLabel}</time></p>
           <h2 data-reveal className="mt-6 text-balance font-brand text-[clamp(1.875rem,min(4vw,6dvh),3.5rem)] leading-[1.2] font-light">

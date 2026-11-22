@@ -1,14 +1,15 @@
 import Image from "next/image";
 import ArrowLink from "@/components/ArrowLink/ArrowLink";
+import HeroShade from "@/components/Hero/HeroShade";
 
 export default function Franchise({ onDetails, onContact }: { onDetails: () => void; onContact: () => void }) {
   return (
     <div className="relative isolate flex h-full flex-col bg-black">
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 md:right-[35%]">
-        <Image src="/images/slides/franchise.webp" alt="" fill sizes="(min-width: 768px) 65vw, 100vw" className="object-cover object-[60%_center] md:[mask-image:linear-gradient(to_right,black_45%,transparent_100%)]" />
-        <div className="absolute inset-0 bg-linear-to-b from-black/65 via-black/40 to-black md:from-black/35 md:via-black/10 md:to-black/60" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0">
+        <Image src="/images/slides/franchise.webp" alt="" fill sizes="100vw" className="object-cover object-[60%_center]" />
       </div>
-      <div className="relative z-10 flex min-h-0 flex-1 flex-col justify-center px-page-gutter pt-36 pb-24 max-sm:pt-40 md:pl-[51.4%]">
+      <HeroShade />
+      <div className="relative z-10 flex min-h-0 flex-1 flex-col justify-center px-page-gutter pt-36 pb-24 max-sm:pt-40">
         <div className="max-w-xl">
           <p data-reveal className="w-fit border-b border-brand-red pb-1.5 font-brand-mono text-xs leading-relaxed text-white/80">Франшиза · White Rabbit Family</p>
           <h2 data-reveal className="mt-6 text-balance font-brand text-[clamp(1.875rem,min(4vw,6dvh),3.5rem)] leading-[1.2] font-light">Техникум<br />в вашем городе</h2>

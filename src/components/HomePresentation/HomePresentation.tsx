@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import Header from "@/components/Header/Header";
 import Hero from "@/components/Hero/Hero";
+import HeroShade from "@/components/Hero/HeroShade";
+import MovingBackground from "@/components/Hero/MovingBackground";
 import Gallery from "@/components/Gallery/Gallery";
 import Events from "@/components/Events/Events";
 import Franchise from "@/components/Franchise/Franchise";
@@ -222,9 +224,8 @@ export default function HomePresentation() {
         {slides.map((slide, index) => (
           <section key={slide.id} id={slide.id} inert={index !== active} tabIndex={-1} aria-label={slide.label} aria-roledescription="слайд" style={{ opacity: index === active ? 1 : 0, zIndex: index === active ? 1 : 0, pointerEvents: index === active ? "auto" : "none" }} className="absolute inset-0 isolate overflow-clip bg-black outline-none transition-opacity duration-400 ease-in-out motion-reduce:transition-none">
             {slide.background && <>
-              <Image src={slide.background} alt="" fill sizes="100vw" style={{ objectPosition: slide.position }} className="object-cover" />
-              <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 bg-linear-to-r from-black/85 via-black/45 to-black/20" />
-              <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 bg-linear-to-b from-black/70 via-transparent to-black/45" />
+              {slide.id === "about" ? <MovingBackground src={slide.background} position={slide.position} /> : <Image src={slide.background} alt="" fill sizes="100vw" style={{ objectPosition: slide.position }} className="object-cover" />}
+              <HeroShade />
             </>}
             {slide.id === "hero" ? (
               <Hero />
@@ -241,10 +242,9 @@ export default function HomePresentation() {
             ) : (
               <div className="relative z-10 flex h-full min-h-0 flex-col px-page-gutter pt-36 pb-24 max-sm:pt-40">
                   <div className="flex min-h-0 max-w-3xl flex-1 flex-col items-start justify-center">
-                    <p data-reveal className="border-b border-brand-red pb-1.5 font-brand-mono text-xs leading-relaxed text-white/80">{slide.label}</p>
-                    <h2 data-reveal className="mt-6 text-balance font-brand text-[clamp(1.875rem,min(4vw,6dvh),3.5rem)] leading-[1.2] font-light">{content[slide.id].title}</h2>
+                    <h2 data-reveal className="text-balance font-brand text-[clamp(1.875rem,min(4vw,6dvh),3.5rem)] leading-[1.2] font-light">{content[slide.id].title}</h2>
                     <p data-reveal className="mt-6 max-w-md font-brand-mono text-sm leading-[1.75] text-white/90 sm:text-base">{content[slide.id].description}</p>
-                    <div data-reveal className="mt-6"><ArrowLink onClick={() => openDetails()}>Подробнее</ArrowLink></div>
+                    <div data-reveal className="mt-6"><ArrowLink onClick={() => openDetails()}>О проекте</ArrowLink></div>
                   </div>
               </div>
             )}
@@ -252,7 +252,7 @@ export default function HomePresentation() {
         ))}
       </main>
       <dialog ref={detailsDialogRef} aria-labelledby="details-title" onCancel={(event) => { event.preventDefault(); closeDetails(); }} className="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none overflow-hidden border-0 bg-black p-0 text-white backdrop:bg-transparent">
-        {(selectedEvent || slides[detailsIndex].id !== "franchise") && <><Image src={details.image} alt="" fill sizes="100vw" loading="eager" className="object-cover object-[60%_center]" /><div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 bg-black/80" /><div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 bg-linear-to-r from-black/50 to-transparent" /></>}
+        {(selectedEvent || slides[detailsIndex].id !== "franchise") && <><Image src={details.image} alt="" fill sizes="100vw" loading="eager" className="object-cover object-[60%_center]" /><HeroShade /></>}
         <div className="relative z-10 h-full overflow-y-auto overscroll-contain md:mr-24">
           <div className="mx-auto flex min-h-full max-w-[90rem] flex-col justify-center px-page-gutter py-24 md:px-[8vw] md:py-20">
             {!selectedEvent && slides[detailsIndex].id === "franchise" ? <h2 data-reveal id="details-title" className="self-start"><Image src="/brand/tehnikum-logo.svg" alt="Техникум" width={1843} height={227} className="h-auto w-64 max-w-full sm:w-96" /></h2> : <h2 data-reveal id="details-title" className="self-start border-b border-brand-red pb-2 font-brand text-4xl leading-tight font-light sm:text-5xl md:text-6xl">{selectedEvent?.title ?? slides[detailsIndex].label}</h2>}
@@ -289,10 +289,6 @@ export default function HomePresentation() {
                 </div>
               </section>
             </div>}
-            {!selectedEvent && slides[detailsIndex].id === "about" && <div className="mt-10 grid max-w-4xl grid-cols-2 gap-2 sm:gap-4">
-              <Image src="/images/gallery/atmosphere-1.webp" alt="Гости за столом в бистро" width={1200} height={800} className="aspect-[4/3] h-full w-full object-cover" />
-              <Image src="/images/gallery/atmosphere-9.webp" alt="Команда за работой на кухне" width={1200} height={800} className="aspect-[4/3] h-full w-full object-cover" />
-            </div>}
             {!selectedEvent && slides[detailsIndex].id === "franchise" && <button type="button" data-reveal onClick={() => openContact()} className="mt-8 cursor-pointer self-start font-brand-mono text-sm underline decoration-brand-red underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">Обсудить франшизу ↗</button>}
           </div>
         </div>
@@ -302,7 +298,7 @@ export default function HomePresentation() {
       </dialog>
       <dialog ref={contactDialogRef} aria-labelledby="contact-title" onCancel={(event) => { event.preventDefault(); closeContact(); }} className="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none overflow-hidden border-0 bg-black p-0 text-white backdrop:bg-transparent">
         <Image src={contactKind === "partners" ? "/images/gallery/atmosphere-9.webp" : "/images/slides/franchise.webp"} alt="" fill sizes="100vw" className="object-cover" />
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-black/85" />
+        <HeroShade />
         <div className="relative h-full overflow-y-auto overscroll-contain md:mr-24">
           <div className="mx-auto grid min-h-full max-w-7xl content-center gap-12 px-page-gutter py-24 md:grid-cols-[minmax(0,4fr)_minmax(0,7fr)] md:items-center md:gap-16 lg:gap-24">
             <div className="max-w-md"><h2 id="contact-title" className="text-balance font-brand text-[clamp(2rem,2.8vw,3rem)] leading-[1.2] font-light">{contactKind === "partners" ? "Давайте сотрудничать" : "Откройте Техникум в вашем городе"}</h2>{contactKind === "partners" && <p className="mt-6 max-w-xs font-brand-mono text-sm leading-[1.75] text-white/80">Расскажите о себе и вашей идее в форме.</p>}</div>

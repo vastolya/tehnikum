@@ -148,8 +148,8 @@ export default function Gallery({ active }: { active: boolean }) {
           <Image src={photo.src} alt={photo.alt} fill sizes="100vw" loading={active ? "eager" : "lazy"} className="object-cover" draggable={false} />
         </div>
       ))}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 bg-linear-to-b from-black/55 via-transparent to-transparent" />
-      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-[40%] bg-linear-to-t from-black/65 via-black/25 via-35% to-transparent" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[30%] bg-linear-to-b from-black/75 to-transparent" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-[30%] bg-linear-to-t from-black/75 to-transparent" />
       <button
         type="button"
         role="switch"

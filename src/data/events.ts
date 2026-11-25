@@ -3,6 +3,7 @@
 export const events = [
   {
     id: "tehnobox-vol-2",
+    eventDateLabel: "1–30 ноября 2026",
     title: "TEHNOBOX VOL. 2",
     publishedAt: "2026-10-13",
     publishedLabel: "13 октября 2026",
@@ -18,6 +19,7 @@ export const events = [
   },
   {
     id: "say-cheese",
+    eventDateLabel: "1–30 ноября 2026",
     title: "Скажи «Сыыыр»!",
     publishedAt: "2026-10-12",
     publishedLabel: "12 октября 2026",
@@ -33,6 +35,7 @@ export const events = [
   },
   {
     id: "pumpkin-season",
+    eventDateLabel: "1–30 ноября 2026",
     title: "Сезон тыквы в «Техникумах»",
     publishedAt: "2026-09-30",
     publishedLabel: "30 сентября 2026",

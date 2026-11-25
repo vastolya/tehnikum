@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 import { legalDocuments } from "@/data/legal";
 import { navigationItems } from "@/data/navigation";
@@ -12,12 +12,12 @@ export default function ClosingSlide({ onNavigate }: { onNavigate: (id: string) 
           <Image src="/brand/tehnikum-logo-white.svg" alt="" width={1843} height={227} className="h-auto w-full" />
         </h2>
       </div>
-      <div className="grid shrink-0 grid-cols-2 gap-6 border-t border-white/25 py-6 font-brand-mono text-xs leading-relaxed sm:grid-cols-3">
-        <nav aria-label="Разделы сайта" className="flex flex-col items-start gap-3">
+      <div className="grid shrink-0 gap-8 border-t border-white/25 py-8 font-brand-mono text-sm leading-relaxed md:grid-cols-[1.3fr_1fr_1fr] md:gap-10">
+        <details className="group order-last self-start"><summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-8 border-b border-white/40 py-3 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white [&::-webkit-details-marker]:hidden">Разделы сайта <span aria-hidden="true" className="text-lg transition-transform group-open:rotate-45 motion-reduce:transition-none">+</span></summary><nav aria-label="Разделы сайта" className="flex flex-col items-start gap-3 pt-4 text-xs">
           {navigationItems.map((item) => <a key={item.id} href={`/#${item.id}`} onClick={(event) => { if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return; event.preventDefault(); onNavigate(item.id); }} className="underline underline-offset-4 hover:text-brand-red">{item.label}</a>)}
-        </nav>
+        </nav></details>
         <div className="flex flex-col items-start gap-3">
-          <Link href="/map" className="underline underline-offset-4 hover:text-brand-red">Выбрать бистро</Link>
+          <p className="text-xs text-white/55">Техникум рядом</p><Link href="/map" className="inline-flex min-h-12 items-center gap-8 border border-white px-5 py-3 transition-colors hover:border-brand-red hover:bg-brand-red focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">Выбрать бистро <span aria-hidden="true">↗</span></Link>
           <Link href="/map" className="underline underline-offset-4 hover:text-brand-red">Меню: выбрать бистро</Link>
         </div>
         <div className="flex flex-col items-start gap-3">
@@ -43,3 +43,5 @@ export default function ClosingSlide({ onNavigate }: { onNavigate: (id: string) 
     </footer>
   );
 }
+
+

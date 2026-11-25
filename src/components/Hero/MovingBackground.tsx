@@ -1,14 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
-export default function MovingBackground({ src, position = "center", priority = false }: { src: string; position?: string; priority?: boolean }) {
+export default function MovingBackground({ src, position = "center", priority = false, children }: { src?: string; position?: string; priority?: boolean; children?: ReactNode }) {
   
   const imageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const section = imageRef.current?.parentElement;
+    const section = imageRef.current?.closest<HTMLElement>("[data-motion-area]") ?? imageRef.current?.parentElement;
     const image = imageRef.current;
     if (!section || !image) return;
 
@@ -68,5 +68,5 @@ export default function MovingBackground({ src, position = "center", priority = 
     };
   }, []);
 
-  return <div ref={imageRef} className="pointer-events-none absolute inset-0 [@media(hover:hover)_and_(pointer:fine)_and_(prefers-reduced-motion:no-preference)]:scale-[1.025]"><Image src={src} alt="" fill priority={priority} sizes="100vw" style={{ objectPosition: position }} className="object-cover" /></div>;
+  return <div ref={imageRef} className="pointer-events-none absolute inset-0 [@media(hover:hover)_and_(pointer:fine)_and_(prefers-reduced-motion:no-preference)]:scale-[1.025]">{src && <Image src={src} alt="" fill priority={priority} sizes="100vw" style={{ objectPosition: position }} className="object-cover" />}{children}</div>;
 }

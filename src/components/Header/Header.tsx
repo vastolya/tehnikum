@@ -140,6 +140,7 @@ export default function Header({ activeId, onNavigate }: { activeId?: string; on
               <li key={item.id}>
                 <a
                   href={`/#${item.id}`}
+                  aria-label={item.id === "partners" ? item.label : undefined}
                   aria-current={activeId === item.id ? "location" : undefined}
                   onClick={(event) => {
                     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || closingRef.current) return;
@@ -149,7 +150,7 @@ export default function Header({ activeId, onNavigate }: { activeId?: string; on
                   }}
                   className="inline-block cursor-pointer py-2 text-white bg-linear-to-r from-brand-red to-brand-red bg-size-[0%_1px] bg-left-bottom bg-no-repeat transition-[background-size] duration-300 hover:bg-size-[100%_1px] focus-visible:bg-size-[100%_1px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white aria-[current=location]:bg-size-[100%_1px] motion-reduce:transition-none"
                 >
-                  {item.label}
+                  {item.id === "partners" ? "Партнеры" : item.label}
                 </a>
               </li>
             ))}

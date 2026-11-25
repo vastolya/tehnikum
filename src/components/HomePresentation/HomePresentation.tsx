@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import Header from "@/components/Header/Header";
 import Hero from "@/components/Hero/Hero";
@@ -10,8 +9,11 @@ import MovingBackground from "@/components/Hero/MovingBackground";
 import Gallery from "@/components/Gallery/Gallery";
 import Events from "@/components/Events/Events";
 import Franchise from "@/components/Franchise/Franchise";
+import ContactDialog from "@/components/Franchise/ContactDialog";
+import ActionButton from "@/components/Franchise/ActionButton";
+import CausticBackground from "@/components/Franchise/CausticBackground";
 import ClosingSlide from "@/components/ClosingSlide/ClosingSlide";
-import type { BistroEvent } from "@/data/events";
+import { events, type BistroEvent } from "@/data/events";
 import ArrowLink from "@/components/ArrowLink/ArrowLink";
 import { revealText } from "@/lib/reveal-text";
 
@@ -71,10 +73,11 @@ export default function HomePresentation() {
     return () => detailsTextAnimationsRef.current.forEach((animation) => animation.cancel());
   }, [detailsSequence]);
 
-  function openDetails(event?: BistroEvent) {
+  function openDetails(event?: BistroEvent, updateHistory = true) {
     const dialog = detailsDialogRef.current;
     if (!dialog || dialog.open) return;
     setSelectedEvent(event ?? null);
+    if (event && updateHistory) window.history.pushState(null, "", `#events/${event.id}`);
     setDetailsIndex(activeRef.current);
     setDetailsSequence((sequence) => sequence + 1);
     detailsAnimationRef.current?.cancel();
@@ -87,6 +90,7 @@ export default function HomePresentation() {
   function closeDetails() {
     const dialog = detailsDialogRef.current;
     if (!dialog || !dialog.open || detailsClosingRef.current) return;
+    if (window.location.hash.startsWith("#events/")) window.history.replaceState(null, "", "#events");
     detailsClosingRef.current = true;
     const opacity = getComputedStyle(dialog).opacity;
     detailsAnimationRef.current?.cancel();
@@ -144,6 +148,20 @@ export default function HomePresentation() {
     if (index >= 0) selectSlide(index, true);
   }, [selectSlide]);
 
+  const syncEventRef = useRef<(event: BistroEvent | undefined) => void>(() => {});
+  useEffect(() => { syncEventRef.current = (event) => {
+    const dialog = detailsDialogRef.current;
+    if (event) {
+      if (dialog?.open) {
+        setSelectedEvent(event);
+        setDetailsSequence((sequence) => sequence + 1);
+      } else openDetails(event, false);
+    } else if (dialog?.open && selectedEvent) {
+      detailsAnimationRef.current?.cancel();
+      dialog.close();
+    }
+  }; });
+
   useEffect(() => {
     const viewport = viewportRef.current;
     if (!viewport) return;
@@ -154,8 +172,10 @@ export default function HomePresentation() {
     let touchStart: { x: number; y: number } | null = null;
     const menuOpen = () => Boolean(document.querySelector("dialog[open]"));
     const syncHash = () => {
-      const index = slides.findIndex((slide) => `#${slide.id}` === window.location.hash);
+      const event = events.find((item) => `#events/${item.id}` === window.location.hash);
+      const index = event ? slides.findIndex((slide) => slide.id === "events") : slides.findIndex((slide) => `#${slide.id}` === window.location.hash);
       selectSlide(index < 0 ? 0 : index, false, false);
+      syncEventRef.current(event);
     };
     const wheel = (event: WheelEvent) => {
       if (menuOpen() || event.ctrlKey || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
@@ -224,7 +244,7 @@ export default function HomePresentation() {
         {slides.map((slide, index) => (
           <section key={slide.id} id={slide.id} inert={index !== active} tabIndex={-1} aria-label={slide.label} aria-roledescription="слайд" style={{ opacity: index === active ? 1 : 0, zIndex: index === active ? 1 : 0, pointerEvents: index === active ? "auto" : "none" }} className="absolute inset-0 isolate overflow-clip bg-black outline-none transition-opacity duration-400 ease-in-out motion-reduce:transition-none">
             {slide.background && <>
-              {slide.id === "about" ? <MovingBackground src={slide.background} position={slide.position} /> : <Image src={slide.background} alt="" fill sizes="100vw" style={{ objectPosition: slide.position }} className="object-cover" />}
+              <MovingBackground src={slide.background} position={slide.position} />
               <HeroShade />
             </>}
             {slide.id === "hero" ? (
@@ -232,11 +252,11 @@ export default function HomePresentation() {
             ) : slide.id === "gallery" ? (
               <Gallery active={index === active} />
             ) : slide.id === "events" ? (
-              <Events active={index === active} onDetails={openDetails} />
+              <Events key={selectedEvent?.id ?? "events"} initialEventId={selectedEvent?.id} active={index === active} onDetails={openDetails} />
             ) : slide.id === "franchise" ? (
               <Franchise onDetails={() => openDetails()} onContact={() => openContact()} />
             ) : slide.id === "partners" ? (
-              <div className="relative z-10 flex h-full flex-col justify-center px-page-gutter pt-36 pb-24 max-sm:pt-40"><div className="max-w-xl"><p data-reveal className="w-fit border-b border-brand-red pb-1.5 font-brand-mono text-xs leading-relaxed text-white/80">Партнёры</p><h2 data-reveal className="mt-7 text-balance font-brand text-[clamp(1.875rem,min(4vw,6dvh),3.5rem)] leading-[1.2] font-light">Идеи для совместных проектов</h2><p data-reveal className="mt-6 max-w-md font-brand-mono text-sm leading-[1.75] text-white/90 sm:text-base">Расскажите нам о вашей идее и возможностях сотрудничества.</p><div data-reveal className="mt-8"><ArrowLink onClick={() => openContact("partners")}>Заполнить форму</ArrowLink></div></div></div>
+              <div className="relative z-10 flex h-full flex-col justify-center px-page-gutter pt-36 pb-24 max-sm:pt-40"><div className="max-w-xl"><h2 data-reveal className="text-balance font-brand text-[clamp(1.875rem,min(4vw,6dvh),3.5rem)] leading-[1.2] font-light">Идеи для совместных проектов</h2><p data-reveal className="mt-6 max-w-md font-brand-mono text-sm leading-[1.75] text-white/90 sm:text-base">Расскажите нам о вашей идее и возможностях сотрудничества.</p><div data-reveal className="mt-8"><ActionButton type="button" onClick={() => openContact("partners")} arrow>Заполнить форму</ActionButton></div></div></div>
             ) : slide.id === "footer" ? (
               <ClosingSlide onNavigate={navigate} />
             ) : (
@@ -252,11 +272,11 @@ export default function HomePresentation() {
         ))}
       </main>
       <dialog ref={detailsDialogRef} aria-labelledby="details-title" onCancel={(event) => { event.preventDefault(); closeDetails(); }} className="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none overflow-hidden border-0 bg-black p-0 text-white backdrop:bg-transparent">
-        {(selectedEvent || slides[detailsIndex].id !== "franchise") && <><Image src={details.image} alt="" fill sizes="100vw" loading="eager" className="object-cover object-[60%_center]" /><HeroShade /></>}
+        {!selectedEvent && slides[detailsIndex].id === "about" ? <CausticBackground /> : (selectedEvent || slides[detailsIndex].id !== "franchise") && <><Image src={details.image} alt="" fill sizes="100vw" loading="eager" className="object-cover object-[60%_center]" /><HeroShade /></>}
         <div className="relative z-10 h-full overflow-y-auto overscroll-contain md:mr-24">
           <div className="mx-auto flex min-h-full max-w-[90rem] flex-col justify-center px-page-gutter py-24 md:px-[8vw] md:py-20">
             {!selectedEvent && slides[detailsIndex].id === "franchise" ? <h2 data-reveal id="details-title" className="self-start"><Image src="/brand/tehnikum-logo.svg" alt="Техникум" width={1843} height={227} className="h-auto w-64 max-w-full sm:w-96" /></h2> : <h2 data-reveal id="details-title" className="self-start border-b border-brand-red pb-2 font-brand text-4xl leading-tight font-light sm:text-5xl md:text-6xl">{selectedEvent?.title ?? slides[detailsIndex].label}</h2>}
-            {selectedEvent && <p data-reveal className="mt-6 font-brand-mono text-sm leading-relaxed text-white/70">{selectedEvent.location}<br />Опубликовано <time dateTime={selectedEvent.publishedAt}>{selectedEvent.publishedLabel}</time></p>}
+            {selectedEvent && <p data-reveal className="mt-6 font-brand-mono text-sm leading-relaxed text-white/70">{selectedEvent.location}<br />{selectedEvent.eventDateLabel}</p>}
             <div className="mt-8 max-w-4xl space-y-6 font-brand-mono text-base leading-[1.7] sm:mt-12 sm:text-xl md:text-2xl">
               {details.paragraphs.map((paragraph) => <p data-reveal key={paragraph}>{paragraph}</p>)}
             </div>
@@ -292,26 +312,11 @@ export default function HomePresentation() {
             {!selectedEvent && slides[detailsIndex].id === "franchise" && <button type="button" data-reveal onClick={() => openContact()} className="mt-8 cursor-pointer self-start font-brand-mono text-sm underline decoration-brand-red underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">Обсудить франшизу ↗</button>}
           </div>
         </div>
-        <button type="button" autoFocus onClick={closeDetails} aria-label="Закрыть подробности" className="absolute top-4 right-4 z-20 grid size-14 cursor-pointer place-items-center bg-black text-white transition-colors hover:bg-brand-red focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white motion-reduce:transition-none md:inset-y-0 md:right-0 md:h-full md:w-24">
+        <button type="button" autoFocus onClick={closeDetails} aria-label="Закрыть подробности" className={`absolute top-4 right-4 z-20 grid size-14 cursor-pointer place-items-center text-white transition-colors focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white motion-reduce:transition-none ${!selectedEvent && slides[detailsIndex].id === "about" ? "bg-transparent hover:text-brand-red md:top-1/2 md:right-5 md:-translate-y-1/2" : "bg-black hover:bg-brand-red md:inset-y-0 md:right-0 md:h-full md:w-24"}`}>
           <svg aria-hidden="true" width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="m4 4 24 24M28 4 4 28" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
         </button>
       </dialog>
-      <dialog ref={contactDialogRef} aria-labelledby="contact-title" onCancel={(event) => { event.preventDefault(); closeContact(); }} className="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none overflow-hidden border-0 bg-black p-0 text-white backdrop:bg-transparent">
-        <Image src={contactKind === "partners" ? "/images/gallery/atmosphere-9.webp" : "/images/slides/franchise.webp"} alt="" fill sizes="100vw" className="object-cover" />
-        <HeroShade />
-        <div className="relative h-full overflow-y-auto overscroll-contain md:mr-24">
-          <div className="mx-auto grid min-h-full max-w-7xl content-center gap-12 px-page-gutter py-24 md:grid-cols-[minmax(0,4fr)_minmax(0,7fr)] md:items-center md:gap-16 lg:gap-24">
-            <div className="max-w-md"><h2 id="contact-title" className="text-balance font-brand text-[clamp(2rem,2.8vw,3rem)] leading-[1.2] font-light">{contactKind === "partners" ? "Давайте сотрудничать" : "Откройте Техникум в вашем городе"}</h2>{contactKind === "partners" && <p className="mt-6 max-w-xs font-brand-mono text-sm leading-[1.75] text-white/80">Расскажите о себе и вашей идее в форме.</p>}</div>
-            <form className="grid gap-x-8 gap-y-8 font-brand-mono text-base leading-relaxed sm:grid-cols-2 sm:gap-y-10" onSubmit={(event) => event.preventDefault()}>
-              {[["name", "Имя и фамилия", "text"], ...(contactKind === "franchise" ? [["city", "Планируемый город открытия", "text"]] : [["company", "Компания", "text"]]), ["phone", "Телефон", "tel"], ["email", "Электронная почта", "email"]].map(([name, label, type]) => <input key={name} required name={name} type={type} aria-label={label} placeholder={label} autoComplete={name === "name" ? "name" : name === "phone" ? "tel" : name === "email" ? "email" : name === "company" ? "organization" : "address-level2"} className="min-h-14 w-full border-b border-white/60 bg-transparent py-3 outline-none placeholder:text-white placeholder-shown:caret-transparent focus:border-brand-red focus:placeholder:text-white/50 autofill:bg-clip-text autofill:[-webkit-text-fill-color:white]" />)}
-              <textarea name="message" aria-label="Текст сообщения" placeholder="Текст сообщения" rows={3} className="w-full resize-y border-b border-white/60 bg-transparent py-3 outline-none placeholder:text-white placeholder-shown:caret-transparent focus:border-brand-red focus:placeholder:text-white/50 sm:col-span-2" />
-              <button type="submit" disabled className="min-h-14 cursor-not-allowed bg-brand-red/50 px-6 font-brand text-xl text-white/70 sm:col-span-2">{contactKind === "partners" ? "Отправить" : "Обсудить франшизу"}</button>
-              <p className="-mt-5 font-brand-mono text-xs leading-relaxed text-white/50 sm:col-span-2 sm:-mt-7">Нажимая «{contactKind === "partners" ? "Отправить" : "Обсудить франшизу"}», я даю согласие на обработку <Link href="/legal/personal-data-policy" className="underline underline-offset-2 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">персональных данных</Link></p>
-            </form>
-          </div>
-        </div>
-        <button type="button" onClick={closeContact} aria-label="Закрыть форму" className="absolute top-4 right-4 grid size-14 cursor-pointer place-items-center bg-black text-white hover:bg-brand-red focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white md:inset-y-0 md:right-0 md:h-full md:w-24"><svg aria-hidden="true" width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="m4 4 24 24M28 4 4 28" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg></button>
-      </dialog>
+      <ContactDialog dialogRef={contactDialogRef} kind={contactKind} onClose={closeContact} />
     </div>
   );
 }

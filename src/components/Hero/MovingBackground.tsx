@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, type ReactNode } from "react";
 
-export default function MovingBackground({ src, position = "center", priority = false, children }: { src?: string; position?: string; priority?: boolean; children?: ReactNode }) {
+export default function MovingBackground({ src, position = "center", priority = false, mobileAnimation, mobilePoster, children }: { src?: string; position?: string; priority?: boolean; mobileAnimation?: string; mobilePoster?: string; children?: ReactNode }) {
   
   const imageRef = useRef<HTMLDivElement>(null);
 
@@ -68,5 +68,5 @@ export default function MovingBackground({ src, position = "center", priority = 
     };
   }, []);
 
-  return <div ref={imageRef} className="pointer-events-none absolute inset-0 [@media(hover:hover)_and_(pointer:fine)_and_(prefers-reduced-motion:no-preference)]:scale-[1.025]">{src && <Image src={src} alt="" fill priority={priority} sizes="100vw" style={{ objectPosition: position }} className="object-cover" />}{children}</div>;
+  return <div ref={imageRef} className="pointer-events-none absolute inset-0 [@media(hover:hover)_and_(pointer:fine)_and_(prefers-reduced-motion:no-preference)]:scale-[1.025]">{src && (mobileAnimation && mobilePoster ? <picture><source media="(max-width: 639px) and (prefers-reduced-motion: reduce)" srcSet={mobilePoster} /><source media="(max-width: 639px)" srcSet={mobileAnimation} /><Image src={src} alt="" fill loading="eager" fetchPriority={priority ? "high" : "auto"} sizes="100vw" style={{ objectPosition: position }} className="object-cover" /></picture> : <Image src={src} alt="" fill priority={priority} sizes="100vw" style={{ objectPosition: position }} className="object-cover" />)}{children}</div>;
 }

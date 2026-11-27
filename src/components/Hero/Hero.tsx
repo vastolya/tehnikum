@@ -8,7 +8,7 @@ export default function Hero() {
 
   return (
     <section aria-labelledby="hero-title" className="relative isolate flex h-full min-h-0 flex-col overflow-hidden bg-black">
-      <MovingBackground src="/images/hero-kitchen.webp" priority />
+      <MovingBackground src="/images/hero-kitchen.webp" mobileAnimation="/images/hero-mobile.webp" mobilePoster="/images/hero-mobile-poster.webp" priority />
       <HeroShade />
       <div className="relative z-10 flex min-h-0 w-full flex-1 flex-col px-page-gutter pt-36 pb-24 text-white max-sm:pt-40">
         <div className="flex min-h-0 max-w-3xl flex-1 flex-col items-start justify-center">

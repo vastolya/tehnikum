@@ -74,7 +74,7 @@ export const locations = [
   },
   {
     id: "perm",
-    name: { ru: "Пермь", en: "Perm" },
+    name: { ru: "Пермь — Окулова", en: "Perm — Okulova" },
     // Address, hours and phone supplied by the user on 27.11.2026 for Perm.
     address: { ru: "ул. Окулова, 14, 1 этаж, Ленинский район, Пермь, 614068", en: "14 Okulova St., 1st floor, Leninsky District, Perm, 614068" },
     mapQuery: "Пермь, улица Окулова, 14",

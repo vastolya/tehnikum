@@ -75,7 +75,11 @@ export const locations = [
   {
     id: "perm",
     name: { ru: "Пермь", en: "Perm" },
-    status: { ru: "Скоро открытие", en: "Coming soon" },
+    // Address, hours and phone supplied by the user on 27.11.2026 for Perm.
+    address: { ru: "ул. Окулова, 14, 1 этаж, Ленинский район, Пермь, 614068", en: "14 Okulova St., 1st floor, Leninsky District, Perm, 614068" },
+    mapQuery: "Пермь, улица Окулова, 14",
+    openingHours: { ru: "Ежедневно 18:00–24:00", en: "Daily 18:00–24:00" },
+    phone: { display: "+7 (342) 248-02-22", href: "tel:+73422480222" },
   },
   {
     id: "almaty",

@@ -63,6 +63,7 @@ export default function CausticBackground() {
     const time = gl.getUniformLocation(program, "time");
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const dialog = canvas.closest("dialog");
+    let visible = false;
     let frame = 0;
     const draw = (now: number) => {
       canvas.width = Math.max(1, Math.round(canvas.clientWidth * 0.6));
@@ -71,20 +72,26 @@ export default function CausticBackground() {
       gl.uniform2f(resolution, canvas.width, canvas.height);
       gl.uniform1f(time, motion.matches ? 0 : now / 1000);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-      if (!motion.matches && dialog?.open) frame = requestAnimationFrame(draw);
+      if (!motion.matches && (dialog ? dialog.open : visible)) frame = requestAnimationFrame(draw);
     };
     const sync = () => {
       cancelAnimationFrame(frame);
-      if (dialog?.open) draw(performance.now());
+      if (dialog ? dialog.open : visible) draw(performance.now());
     };
     const observer = new MutationObserver(sync);
     if (dialog) observer.observe(dialog, { attributes: true, attributeFilter: ["open"] });
+    const visibilityObserver = dialog ? null : new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      sync();
+    });
+    visibilityObserver?.observe(canvas);
     motion.addEventListener("change", sync);
     window.addEventListener("resize", sync);
     sync();
     return () => {
       cancelAnimationFrame(frame);
       observer.disconnect();
+      visibilityObserver?.disconnect();
       motion.removeEventListener("change", sync);
       window.removeEventListener("resize", sync);
       gl.deleteBuffer(buffer);

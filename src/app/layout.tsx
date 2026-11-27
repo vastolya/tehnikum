@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import type { ReactNode } from "react";
 import CookieNotice from "@/components/CookieNotice/CookieNotice";
+import PageLoader from "@/components/PageLoader";
 import "./globals.css";
 
 const tehnikum = localFont({
@@ -34,6 +35,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ru" className={`${tehnikum.variable} ${courierNew.variable}`}>
       <body className="m-0 bg-white font-brand-mono text-brand-ink [font-synthesis:none]">
+        <noscript><style>{"#page-loader { display: none }"}</style></noscript>
+        <PageLoader />
         {children}
         <CookieNotice />
       </body>

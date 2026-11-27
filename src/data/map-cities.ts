@@ -13,7 +13,7 @@ export const mapCities: MapCity[] = [
   {"id":"tyumen","name":"Тюмень","coordinates":[65.53333333333333,57.15],"locationIds":["tyumen"],"symbol":"tyumen"},
   {"id":"novosibirsk","name":"Новосибирск","coordinates":[82.91666666666667,55.03333333333333],"locationIds":["novosibirsk"],"symbol":"novosibirsk"},
   {"id":"rostov","name":"Ростов-на-Дону","coordinates":[39.71,47.222500000000004],"locationIds":["rostov"],"symbol":"rostov"},
-  {"id":"perm","name":"Пермь","coordinates":[56.24888888888889,58.013888888888886],"locationIds":["perm"]},
+  {"id":"perm","name":"Пермь","coordinates":[56.24888888888889,58.013888888888886],"locationIds":["perm"],"symbol":"perm"},
   {"id":"izhevsk","name":"Ижевск","coordinates":[53.21666666666667,56.85],"locationIds":["izhevsk"],"symbol":"izhevsk"},
   {"id":"almaty","name":"Алма-Ата","coordinates":[76.915,43.24],"locationIds":["almaty"]},
 ];

@@ -157,9 +157,11 @@ export default function Header({ activeId, onNavigate }: { activeId?: string; on
             <li>
               <a
                 href="https://app.wrf.su/"
-                className="inline-block cursor-pointer py-2 text-white bg-linear-to-r from-brand-red to-brand-red bg-size-[0%_1px] bg-left-bottom bg-no-repeat transition-[background-size] duration-300 hover:bg-size-[100%_1px] focus-visible:bg-size-[100%_1px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white motion-reduce:transition-none"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-block cursor-pointer py-2 text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
               >
-                Мобильное приложение
+                Мобильное <span className="inline-block bg-linear-to-r from-brand-red to-brand-red bg-size-[0%_1px] bg-left-bottom bg-no-repeat pb-2 transition-[background-size] duration-300 group-hover:bg-size-[100%_1px] group-focus-visible:bg-size-[100%_1px] motion-reduce:transition-none">приложение</span>
               </a>
             </li>
           </ul>
